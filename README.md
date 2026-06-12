@@ -1,15 +1,10 @@
 # Event Megaphone
 
-A free, single-file, self-hosted post generator for Luma, Meetup, and Satlantis events.
-Paste an event URL, get a ready-to-copy X + Nostr campaign.
+A free, single-file, self-hosted post generator for Luma, Meetup, and Satlantis events. Paste an event URL, get a ready-to-copy Twitter/X + Nostr campaign.
 
-**▶ Use it now → https://orangedaddocs.github.io/event-megaphone/** — click and start. Or download the single `index.html` and open it; it works exactly the same, fully offline.
+**▶ Use it now → https://orangedaddocs.github.io/event-megaphone/** — or download the single `index.html` and open it; it works the same, fully offline.
 
-🔒 **No AI. No accounts. No tracking.** The tool has no analytics, no pixels, and loads no external scripts or fonts — it's one HTML file you can read end to end. It makes **zero network requests until *you* click an import button.** Want nothing in the middle at all? Download `index.html` and run it locally — then not even a web host sees you.
-
-> **What it does:** You give it one event. It gives you back a full campaign: short X posts, longer link-light X posts, Nostr posts, and a YouTube recap follow-up. No scheduler required, no API keys, nothing leaves the browser.
-
----
+🔒 **No AI. No accounts. No tracking.** No analytics, no pixels, no external scripts or fonts — one HTML file you can read end to end. It makes zero network requests until you click an import button.
 
 ## Features
 
@@ -26,77 +21,27 @@ Paste an event URL, get a ready-to-copy X + Nostr campaign.
 - **Posting checklist** to keep each event's campaign consistent
 - **Zero build, zero backend, zero dependencies** — a single HTML file. Works on GitHub Pages or just `open index.html`; works fully offline (manual entry + paste fallback)
 
----
-
 ## Quick start
 
-### Run it locally — most private
-
-Open `index.html` in any browser. Done — it works offline for manual entry, and copy works via the `execCommand` fallback. For full clipboard support on every browser, serve it from your own machine:
-
-```
-python3 -m http.server 8787      →  http://localhost:8787
-```
-
-Nothing leaves your machine except the optional event import.
-
-### Self-host — sovereign + shareable
-
-It's one static file. Put `index.html` behind any web server you control — your own box or your own domain — so your community can use a URL *you* own.
-
-### GitHub Pages — easiest, but centralized
-
-Free ~3-minute hosting if you don't mind the platform:
-
-1. Push the repo (it's just `index.html`).
-2. In repo **Settings → Pages → Source**: `main` branch, `/ (root)` → Save.
-3. Live at `https://<your-username>.github.io/event-megaphone/`.
-
----
+- **Run locally**: open `index.html` in any browser. For full clipboard support on every browser, serve it from your machine: `python3 -m http.server 8787` → `http://localhost:8787`.
+- **Self-host**: it's one static file — put `index.html` behind any web server you control.
+- **GitHub Pages**: push the repo, then in repo **Settings → Pages → Source** select the `main` branch, `/ (root)`. Live at `https://<your-username>.github.io/event-megaphone/`.
 
 ## Usage
 
-1. Paste a **Luma**, **Meetup**, or **Satlantis** event URL, and click the import button.
+1. Paste a Luma, Meetup, or Satlantis event URL and click **Import event**.
 2. If import is blocked, click **Paste text/HTML**, paste the page source or copied event text, then parse it.
-3. Review the filled fields. Edit anything that needs fixing (Title, date, speaker, hook, RSVP URL, location, map URL). Satlantis imports are partial when the page does not expose venue details, so expect to add location/map manually. Add hashtags manually if you want them.
-4. Pick a **Style** (Structured / Conversational) and a **Tone** — posts re-render instantly.
-5. Click **Generate posts** if you made manual edits.
-6. Walk down the 6 stages. For each stage:
-   - **Short X**: click Copy → paste into X / schedule in your calendar app.
-   - **Long X**: use when you want the main post to carry more context; put the RSVP or YouTube link in a reply.
-   - **Nostr**: click Copy → paste into [Primal](https://primal.net), [Damus](https://damus.io), or [Amethyst](https://github.com/vitorpamplona/amethyst).
-7. Use the **Posting checklist** at the bottom to confirm nothing was missed.
+3. Review the filled fields and edit anything that needs fixing (Title, date, speaker, hook, RSVP URL, location, map URL). Add hashtags manually if you want them.
+4. Pick a **Style** and a **Tone** — posts re-render instantly. Click **Generate posts** if you made manual edits.
+5. Walk down the 6 stages and copy each post: short X and long X into Twitter/X, Nostr into [Primal](https://primal.net), [Damus](https://damus.io), or [Amethyst](https://github.com/vitorpamplona/amethyst).
+6. Use the **Posting checklist** at the bottom to confirm nothing was missed.
 
----
+## Customize
 
-## Customize for your meetup
-
-### 1. Rebrand the colors
-
-In `index.html`, change the `:root` CSS variables:
-
-```css
---accent:   #f7931a;   /* Bitcoin orange — change to your brand color */
---navy-950: #0f1129;   /* Header band background */
---bg:       #f8f9fc;   /* Page background */
-```
-
-### 2. Edit the tone presets
-
-Open `index.html`, find `const TONES = {...}` in the `<script>` block, and edit the openers / ctas / signoffs phrases for each tone. Add phrases to any array; the engine rotates through them via a seed so successive generations differ.
-
-### 3. (Optional) Have an AI write the posts instead of templates
-
-The default engine fills templates — fast, free, fully local, but the wording follows fixed patterns. To wire up a real LLM for genuinely custom copy (bring-your-own-key, works with a local Ollama or OpenRouter — never locked to one vendor, templates stay the fallback), follow **[`AI_INTEGRATION.md`](AI_INTEGRATION.md)**.
-
----
-
-## Why this exists
-
-Great event content disappears fast if nobody has time to turn the event page into posts, reminders, and recaps. This tool fixes that — one import, six stages, three variants each, done.
-
----
+- **Colors**: edit the `:root` CSS variables in `index.html` (`--accent`, `--navy-950`, `--bg`).
+- **Tone phrases**: edit the `openers` / `ctas` / `signoffs` arrays in `const TONES = {...}` in the `<script>` block.
+- **AI-written posts (optional)**: the default engine fills templates. To wire up a bring-your-own-key LLM instead (local Ollama or OpenRouter; templates stay the fallback), follow [`AI_INTEGRATION.md`](AI_INTEGRATION.md).
 
 ## License
 
-MIT. Use it. Fork it. Ship it.
+MIT.
