@@ -12,11 +12,12 @@ if (!m) throw new Error('ENGINE-START/ENGINE-END markers not found in index.html
 // Names we expose for testing. Extend this list as the engine grows.
 const EXPORTS = [
   'X_LIMIT', 'X_LONG_SOFT_LIMIT', 'NOSTR_SOFT_LIMIT',
-  'decodeEntities', 'normalizeLumaUrl', 'lumaSlug', 'fmtHashtags',
+  'decodeEntities', 'detectEventProvider', 'normalizeLumaUrl', 'lumaSlug', 'normalizeMeetupUrl', 'normalizeEventUrl', 'fmtHashtags',
+  'normalizeSatlantisUrl',
   'formatEventTime', 'timezoneConversions',
   'enforceXLimit', 'stripLinks', 'sanitizeVenueText',
   'parseJsonLdEvent', 'validateEvent',
-  'deepFindEvent', 'lumaToEvent',
+  'deepFindEvent', 'lumaToEvent', 'meetupToEvent', 'satlantisToEvent', 'importFieldSummary', 'eventContentToEvent', 'importErrorReason',
   'buildProxyAttempts',
   'TONES', 'STYLES',
   'STAGES', 'compose', 'buildStage'

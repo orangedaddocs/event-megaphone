@@ -6,7 +6,7 @@ Hand this file to **Claude Code**, **Codex**, **Cursor**, or any AI coding agent
 
 ## 0. Mission
 
-Build a **single-file, self-contained HTML tool** that turns Luma events into full X + Nostr post campaigns in ~15 minutes per event. **No backend. No build step. No API keys required for the core flow.**
+Build a **single-file, self-contained HTML tool** that turns Luma, Meetup, or Satlantis events into full X + Nostr post campaigns in ~15 minutes per event. **No backend. No build step. No API keys required for the core flow.**
 
 The tool must run by:
 1. Opening `index.html` in a browser, OR
@@ -23,12 +23,12 @@ The tool must run by:
 | Build step | None. No npm, no bundler, no transpiler. |
 | Dependencies | None. No CDN scripts. No Tailwind. No React. Vanilla HTML/CSS/JS only. |
 | Browser support | Modern evergreen (Chrome, Safari, Firefox, Edge — last 2 years). |
-| Offline | Must work offline once loaded for manual entry. Optional Luma URL imports should fail gracefully. |
-| File size | `index.html` < 50 KB uncompressed. |
+| Offline | Must work offline once loaded for manual entry. Optional event URL imports should fail gracefully. |
+| File size | `index.html` < 120 KB uncompressed. |
 | Accessibility | Keyboard-navigable form, semantic HTML, contrast AA. Lighthouse a11y ≥ 90, perf ≥ 95 desktop. |
 | Neutrality | No venue-specific branding in repo text or generated copy (see §10). |
 
-**Font note:** the design calls for Inter, but loading it from a CDN breaks the offline + no-dependency constraints and embedding it blows the 50 KB budget. Resolution: `font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` — Inter is used if locally installed, otherwise the system font (visually close). No network cost.
+**Font note:** the design calls for Inter, but loading it from a CDN breaks the offline + no-dependency constraints and embedding it blows the single-file budget. Resolution: `font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` — Inter is used if locally installed, otherwise the system font (visually close). No network cost.
 
 ---
 
@@ -45,8 +45,8 @@ The tool must run by:
 │        ↑          └──────────────────────────┘       │
 │        │                       ↓                     │
 │   ┌──────────┐        ┌──────────────────┐           │
-│   │  Luma    │ ──→    │  Render          │           │
-│   │  import  │        │  (6 stages ×     │           │
+│   │ Event    │ ──→    │  Render          │           │
+│   │ import   │        │  (6 stages ×     │           │
 │   └──────────┘        │   3 copy cards)  │           │
 │                       └──────────────────┘           │
 └──────────────────────────────────────────────────────┘
@@ -55,7 +55,7 @@ The tool must run by:
 ### Data flow
 1. On load, the form is empty and ready for input.
 2. User either:
-   - Pastes a Luma event URL → browser races multiple CORS proxies in parallel + Jina reader; if all fail, user can paste Luma page source/text → parsed into the form.
+   - Pastes a Luma, Meetup, or Satlantis event URL → browser detects the source, races multiple CORS proxies in parallel + Jina reader; if all fail, user can paste the page source/text → parsed into the form.
    - Manually fills the form → clicks **Generate posts** → `readForm()` → `renderOutput(ev)`.
 3. `compose(ev, style, tone, seedBase)` calls `buildStage(stage, ev, style, tone, seed)` for each of the 6 `STAGES` entries and returns a `Post[]` of **length 6**. Each `Post = { stage, when, x, xlong, nostr }`.
 4. `renderOutput(ev)` paints 6 stage cards. Each card has three copy panels (short X / long X / Nostr) with copy buttons and char counts.
@@ -80,8 +80,10 @@ type Event = {
   speaker_nostr?: string;     // npub1...
   description: string;        // 1-2 sentence hook
   topic_tags?: string[];      // internal-only categorization
-  hashtags: string[];         // user-visible #tags
-  luma_url?: string;
+  hashtags: string[];         // user-visible #tags; imports default to []
+  luma_url?: string;          // RSVP URL; historical field name supports all event providers
+  location?: string;          // venue/address text, imported when available
+  map_url?: string;           // Google Maps or equivalent map link, imported when available
   youtube_url?: string;
   tone: 'punchy' | 'educational' | 'cypherpunk' | 'welcoming';
 };
@@ -140,16 +142,16 @@ Default: Conversational. Changing Style re-renders all drafts instantly (no extr
 Four tones, each with its own `openers`/`ctas`/`signoffs` phrase banks (see §6). Changing Tone also re-renders instantly.
 
 ### Building blocks each post must include
-- **Announcement**: tone intro + title + date_display + venue + speaker (with @handle if available) + hook + CTA + Luma URL + hashtags
-- **7-day**: tone reminder line (with day count substituted) + title + date + RSVP URL + hashtags
-- **24-hr**: tone day line + title + date + speaker_x or speaker name + RSVP URL + hashtags
-- **Live**: tone live line + speaker tag + 1-line hook + venue + **timezone conversions** (local + ET + PT, deduped) + hashtags
-- **Follow-up**: tone followup line + title + speaker tag + one clearly-marked blank for the key takeaway + "Recording soon" + hashtags
+- **Announcement**: tone intro + title + date_display + venue/location + speaker (with @handle if available) + hook + CTA + RSVP URL + map URL when available + optional user-entered hashtags
+- **7-day**: tone reminder line (with day count substituted) + title + date + RSVP URL + map URL when available + optional user-entered hashtags
+- **24-hr**: tone day line + title + date + speaker_x or speaker name + RSVP URL + map URL when available + optional user-entered hashtags
+- **Live**: tone live line + speaker tag + 1-line hook + venue/location + map URL when available + **timezone conversions** (local + ET + PT, deduped) + optional user-entered hashtags
+- **Follow-up**: tone followup line + title + speaker tag + one clearly-marked blank for the key takeaway + "Recording soon" + optional user-entered hashtags
 - **YouTube recap**: recording-is-live opener + takeaway placeholder + YouTube URL for Nostr + "YouTube link in reply" for X
 
 ### Timezone handling
 
-- **Read the real zone from Luma, never hardcode.** Prefer the IANA zone (`America/Denver`) from the page JSON; fall back to the UTC offset on the JSON-LD `startDate`.
+- **Read the real zone from the event page, never hardcode.** Prefer the IANA zone (`America/Denver`) from the page JSON; fall back to the UTC offset on the JSON-LD `startDate`.
 - **Label every time with its zone** (`6:30 PM MDT`), derived via `Intl.DateTimeFormat(..., { timeZone, timeZoneName: 'short' })` — always DST-correct.
 - **Live-stage conversions**: render the event start instant in the event's local zone + `America/New_York` + `America/Los_Angeles`, deduped if any equal the local zone. Example: `7:00 PM MDT · 9:00 PM EDT · 6:00 PM PDT`.
 - The `tz` field in each event object accepts an IANA zone string (e.g. `"America/Denver"`). When absent, falls back to the UTC offset embedded in `date_iso`.
@@ -183,10 +185,10 @@ Four tones, each with its own `openers`/`ctas`/`signoffs` phrase banks (see §6)
 - Two-column grid on desktop, stacked on mobile (`@media (max-width:900px)`).
 - Left column: import card + event-details form.
 - Right column: generated posts + **Posting checklist** panel.
-- Sticky header (navy band): logo left; **`Clear form`** and **`View on GitHub`** buttons right. No "Open Luma" link.
+- Sticky header (navy band): logo left; **`Clear form`** and **`View on GitHub`** buttons right. No provider-specific open link.
 
 ### Form fields (left column, in order)
-1. **Luma import card** — URL input, `Import from Luma`, `Paste text/HTML` toggle + paste fallback.
+1. **Event import card** — single URL input, auto-detected provider import button, `Paste text/HTML` toggle + paste fallback.
 2. **Event details card:**
    - **Title** — visible, typeable field (not hidden).
    - Date / time
@@ -194,9 +196,11 @@ Four tones, each with its own `openers`/`ctas`/`signoffs` phrase banks (see §6)
    - Speaker X handle (optional)
    - Speaker Nostr npub (optional)
    - Hook / one-liner
-   - Luma / RSVP URL
+   - Event / RSVP URL
+   - Location / address
+   - Map URL (optional)
    - YouTube recording URL (optional)
-   - Hashtags
+   - Hashtags (blank after import; user fills manually)
    - **Style** selector (Structured / Conversational)
    - **Tone** selector (Educational / Welcoming / Cypherpunk / Punchy)
    - **Generate posts** (before any output) / **Regenerate posts ↻** (after output exists)
@@ -270,10 +274,10 @@ When rebuilding, the agent must verify all of these by running through them in a
 5. **Manual form**: Clear form. Type "Test Event" as the **Title** (visible field), "Sat, Jul 4 · 7pm MDT" as date, "Alice" as speaker. Click Generate. 6 stages render. No errors in console.
 6. **Copy**: Click Copy on any X post. Clipboard contains the exact post text including emojis and newlines. Toast appears.
 7. **Edit drafts**: Edit a generated post body. Character counts update live, Copy uses the edited text, and Open in X uses the edited text.
-8. **Char count warn**: Enter a 500-char hook. The Announcement X post char counter shows red `> 280`. (Requires `--warn` to be defined in `:root`; it is set to `#e5484d`.)
+8. **Char count warn**: Type into a short X draft until it exceeds 280 characters. The counter becomes prominent, the overage text appears, and an orange `Post too long` pill appears in that post card.
 9. **Live timezone**: The Live-stage post shows local + ET + PT conversions, deduped, DST-correct (e.g. `7:00 PM MDT · 9:00 PM EDT · 6:00 PM PDT`).
 10. **Mobile**: Resize to 375px width. Form stacks above output. Buttons remain tappable (≥ 44px hit target). Inputs at 16px font (no iOS focus-zoom).
-11. **Network**: Cold load has no analytics, fonts, or CDN assets. Luma import races proxy endpoints only after the user clicks **Import from Luma**.
+11. **Network**: Cold load has no analytics, fonts, or CDN assets. Event import races proxy endpoints only after the user clicks the import button.
 
 ---
 
@@ -290,8 +294,8 @@ A Settings panel (off by default) that accepts any **OpenAI-compatible endpoint*
 - User downloads as PNG to attach when posting.
 - Still no backend.
 
-### v1.2 — Luma calendar import
-- Pull the upcoming events list from a Luma calendar, not just single-event pages.
+### v1.2 — Calendar import
+- Pull the upcoming events list from a Luma calendar or Meetup group, not just single-event pages.
 - Let the user select an event from the calendar and generate posts immediately.
 - If CORS blocks, support pasted calendar page source as a fallback.
 
@@ -305,7 +309,7 @@ A Settings panel (off by default) that accepts any **OpenAI-compatible endpoint*
 
 ### v1.5 — Multi-venue support
 - Add a venue config + switcher (stored in `localStorage` or a settings panel).
-- Each venue has its own default hashtags and brand color.
+- Optional saved community presets for brand color and suggested hashtags, but generated/imported events must not silently add default hashtags.
 
 ### v1.6 — Recurring event templates
 - Save form state as a "template" in `localStorage` so weekly recurring events (e.g. "Open Hack Night") can be re-loaded instantly.
@@ -326,7 +330,7 @@ A Settings panel (off by default) that accepts any **OpenAI-compatible endpoint*
 
 ## 10. Neutrality constraint
 
-No venue-specific branding anywhere in repo text or generated copy. Allowed neutral terms: "Event Poster," "Denver Bitcoin meetup," "Luma events," "X + Nostr campaigns." `sanitizeVenueText` enforces this on imported content.
+No venue-specific branding anywhere in repo text or generated copy. Allowed neutral terms: "Event Poster," "Denver Bitcoin meetup," "Meetup events," "Luma events," "Satlantis events," "X + Nostr campaigns." `sanitizeVenueText` enforces this on imported content.
 
 To verify, run the venue-neutrality `rg` check defined in the design spec (`docs/superpowers/specs/2026-05-23-event-poster-v2-design.md` §10) against `README.md`, `BUILD_SPEC.md`, `LICENSE`, and `index.html`. Expected: no matches. The literal forbidden-term pattern is kept only in that design-spec file (which is outside the checked set), so this build spec stays clean of the very terms it forbids.
 

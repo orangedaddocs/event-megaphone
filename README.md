@@ -1,11 +1,11 @@
 # Event Poster
 
-A free, single-file, self-hosted post generator for Luma events.
-Paste a Luma event URL, get a ready-to-copy X + Nostr campaign.
+A free, single-file, self-hosted post generator for Luma, Meetup, and Satlantis events.
+Paste an event URL, get a ready-to-copy X + Nostr campaign.
 
 **▶ Use it now → https://orangedaddocs.github.io/event-poster/** — click and start. Or download the single `index.html` and open it; it works exactly the same, fully offline.
 
-🔒 **No AI. No accounts. No tracking.** The tool has no analytics, no pixels, and loads no external scripts or fonts — it's one HTML file you can read end to end. It makes **zero network requests until *you* click "Import from Luma."** Want nothing in the middle at all? Download `index.html` and run it locally — then not even a web host sees you.
+🔒 **No AI. No accounts. No tracking.** The tool has no analytics, no pixels, and loads no external scripts or fonts — it's one HTML file you can read end to end. It makes **zero network requests until *you* click an import button.** Want nothing in the middle at all? Download `index.html` and run it locally — then not even a web host sees you.
 
 > **What it does:** You give it one event. It gives you back a full campaign: short X posts, longer link-light X posts, Nostr posts, and a YouTube recap follow-up. No scheduler required, no API keys, nothing leaves the browser.
 
@@ -13,13 +13,15 @@ Paste a Luma event URL, get a ready-to-copy X + Nostr campaign.
 
 ## Features
 
-- **Luma-first import**: paste a Luma URL and the tool races multiple CORS proxies in parallel; if all are blocked, paste the Luma page text/source as a fallback (always works)
+- **Multi-platform import**: paste a Luma, Meetup, or Satlantis event URL and the tool detects the source automatically; if automatic import is blocked, paste the page text/source as a fallback
 - **6-stage campaign** per event: Announcement → 7-day reminder → 24-hr reminder → Live update → Follow-up recap → YouTube recap
 - **3 post variants per stage**: short X (≤ 280 chars), long link-light X (no URL in body; link goes in the reply), and Nostr — with live character counts
 - **Style selector**: Structured (label-led, scannable) or Conversational (hook-first, reads like a person)
 - **4 tone presets**: Educational, Welcoming, Cypherpunk, Punchy — switching either knob re-renders all 18 drafts instantly
 - **Visible Title field** — type or import the event title and see it live in every draft
-- **Timezone-aware**: reads the IANA zone from Luma (e.g. `America/Denver`); labels every time with the correct abbreviation (MDT/EDT/etc.); Live-stage posts show local + ET + PT conversions, deduped and DST-correct
+- **Timezone-aware**: reads the IANA zone when the event page exposes it (e.g. `America/Denver`); labels every time with the correct abbreviation (MDT/EDT/etc.); Live-stage posts show local + ET + PT conversions, deduped and DST-correct
+- **Location + map aware**: imports venue/address details and Google Maps links into editable fields, then includes clean map links in short X/Nostr posts
+- **User-controlled hashtags**: imports leave the hashtag field blank; add only the tags you choose
 - **Editable drafts** with one-click copy + "Open in X" using your edited text; clipboard fallback for `file://` / non-HTTPS contexts
 - **Posting checklist** to keep each event's campaign consistent
 - **Zero build, zero backend, zero dependencies** — a single HTML file. Works on GitHub Pages or just `open index.html`; works fully offline (manual entry + paste fallback)
@@ -36,7 +38,7 @@ Open `index.html` in any browser. Done — it works offline for manual entry, an
 python3 -m http.server 8787      →  http://localhost:8787
 ```
 
-Nothing leaves your machine except the optional Luma import.
+Nothing leaves your machine except the optional event import.
 
 ### Self-host — sovereign + shareable
 
@@ -54,9 +56,9 @@ Free ~3-minute hosting if you don't mind the platform:
 
 ## Usage
 
-1. Paste a **Luma event URL** and click **Import from Luma**.
-2. If import is blocked, click **Paste text/HTML**, paste the Luma page source or copied event text, then parse it.
-3. Review the filled fields. Edit anything that needs fixing (Title, date, speaker, hook, RSVP URL, hashtags).
+1. Paste a **Luma**, **Meetup**, or **Satlantis** event URL, and click the import button.
+2. If import is blocked, click **Paste text/HTML**, paste the page source or copied event text, then parse it.
+3. Review the filled fields. Edit anything that needs fixing (Title, date, speaker, hook, RSVP URL, location, map URL). Satlantis imports are partial when the page does not expose venue details, so expect to add location/map manually. Add hashtags manually if you want them.
 4. Pick a **Style** (Structured / Conversational) and a **Tone** — posts re-render instantly.
 5. Click **Generate posts** if you made manual edits.
 6. Walk down the 6 stages. For each stage:

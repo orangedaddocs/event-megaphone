@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Event Poster — X + Nostr post generator</title>
-<meta name="description" content="A free, self-contained tool to turn Luma events into X + Nostr post campaigns." />
+<title>Event Megaphone — Twitter/X + Nostr post generator</title>
+<meta name="description" content="A free, self-contained tool to turn event pages into Twitter/X + Nostr post campaigns." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0d10'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%23f7931a'/%3E%3C/svg%3E" />
 <style>
   :root{
@@ -25,9 +25,9 @@ html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font
 a{color:var(--accent-deep);text-decoration:none} a:hover{text-decoration:underline}
 .wrap{max-width:1180px;margin:0 auto;padding:0 0 80px}
 .topbar{background:var(--navy-950);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.logo{display:inline-flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:18px}
+.logo{display:inline-flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:24px}
 .logo .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(247,147,26,.22)}
-.topbar .sub{color:rgba(255,255,255,.7);font-size:12px}
+.topbar .sub{color:rgba(255,255,255,.7);font-size:15px}
 .btn{display:inline-flex;align-items:center;gap:6px;background:var(--white);color:var(--text);border:1px solid var(--border);padding:9px 16px;border-radius:var(--radius-pill);font:inherit;font-size:13px;cursor:pointer;transition:all .15s}
 .btn:hover{border-color:var(--accent)}
 .btn.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:600}
@@ -77,8 +77,10 @@ input:focus,textarea:focus{border-color:var(--accent)}
   .net.xlong{color:var(--xlong)}
   .net.nostr{color:var(--nostr)}
   .post-body{display:block;width:100%;min-height:64px;resize:vertical;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;white-space:pre-wrap;font-family:var(--font);font-size:13px;line-height:1.45;color:var(--text);overflow:hidden}
-  .post-meta{display:flex;align-items:center;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--muted)}
-  .count.warn{color:var(--warn)}
+  .post-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-size:12px;color:var(--muted)}
+  .count.warn{color:var(--accent-deep);font-weight:700}
+  .post-too-long{display:none;align-items:center;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);border-radius:999px;padding:3px 9px;font-weight:700;font-size:11px;white-space:nowrap}
+  .post-too-long.show{display:inline-flex}
   .post-actions{display:flex;gap:6px;flex-wrap:wrap}
 
   .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-top:8px}
@@ -108,8 +110,8 @@ input:focus,textarea:focus{border-color:var(--accent)}
 <div class="wrap">
 
 <div class="topbar">
-  <div><div class="logo"><span class="dot"></span> Event Poster</div>
-  <div class="sub">Turn Luma events into X + Nostr campaigns.</div></div>
+  <div><div class="logo"><span class="dot"></span> Event Megaphone</div>
+  <div class="sub">Turn Luma, Meetup, or Satlantis events into Twitter/X + Nostr campaigns. Imports can take 15–20 seconds.</div></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
     <button class="btn ghost" id="btn-clear">Clear form</button>
     <a class="btn ghost" href="https://github.com/orangedaddocs/event-poster" target="_blank" rel="noopener">View on GitHub</a>
@@ -121,20 +123,20 @@ input:focus,textarea:focus{border-color:var(--accent)}
   <!-- LEFT: form -->
   <section>
   <div class="card">
-    <div class="overline">Luma import</div>
+    <div class="overline">Event import</div>
     <div class="card-body">
-      <label for="luma_import_url">Luma event URL</label>
-      <input type="text" id="luma_import_url" placeholder="https://luma.com/…" />
+      <label for="event_import_url" id="event-url-label">Event URL</label>
+      <input type="text" id="event_import_url" placeholder="Luma | Meetup | Satlantis" />
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px">
-        <button class="btn primary" id="btn-import-luma">Import from Luma</button>
-        <button class="btn" id="btn-toggle-luma-paste">Paste text/HTML</button>
+        <button class="btn primary" id="btn-import-event">Import event</button>
+        <button class="btn" id="btn-toggle-event-paste">Paste text/HTML</button>
       </div>
-      <div id="luma-paste-wrap" hidden>
-        <label for="luma_paste">Luma page text or HTML</label>
-        <textarea id="luma_paste" placeholder="If import is blocked, paste the Luma page source or copied event text here."></textarea>
-        <button class="btn" id="btn-parse-luma-paste" style="margin-top:8px">Use pasted content</button>
+      <div id="event-paste-wrap" hidden>
+        <label for="event_paste" id="event-paste-label">Event page text or HTML</label>
+        <textarea id="event_paste" placeholder="If import is blocked, paste the event page source or copied event text here."></textarea>
+        <button class="btn" id="btn-parse-event-paste" style="margin-top:8px">Use pasted content</button>
       </div>
-      <div class="hint" id="import-status" aria-live="polite" style="font-size:12px;color:var(--muted);margin-top:9px">The Luma event is the source of truth; the fields below are just for edits.</div>
+      <div class="hint" id="import-status" aria-live="polite" style="font-size:12px;color:var(--muted);margin-top:9px">Paste any supported event URL. The event page is the source of truth; the fields below are just for edits.</div>
     </div>
   </div>
 
@@ -144,7 +146,7 @@ input:focus,textarea:focus{border-color:var(--accent)}
       <label for="title">Title</label>
       <input type="text" id="title" placeholder="Event title" />
       <label for="date">Date / time</label>
-      <input type="text" id="date" placeholder="Imported from Luma" />
+      <input type="text" id="date" placeholder="Imported from the event page" />
       <label for="speaker">Speaker(s)</label>
       <input type="text" id="speaker" placeholder="Speaker name" />
       <label for="speaker_x">Speaker X handle (optional)</label>
@@ -153,12 +155,16 @@ input:focus,textarea:focus{border-color:var(--accent)}
       <input type="text" id="speaker_nostr" placeholder="npub1…" />
       <label for="hook">Hook / one-liner</label>
       <textarea id="hook" placeholder="Short event hook"></textarea>
-      <label for="luma">Luma / RSVP URL</label>
-      <input type="text" id="luma" placeholder="https://luma.com/…" />
+      <label for="luma">Event / RSVP URL</label>
+      <input type="text" id="luma" placeholder="https://luma.com/… or https://www.meetup.com/…" />
+      <label for="location">Location / address</label>
+      <textarea id="location" placeholder="Venue, address, or room notes"></textarea>
+      <label for="map_url">Map URL (optional)</label>
+      <input type="text" id="map_url" placeholder="https://www.google.com/maps/…" />
       <label for="youtube">YouTube recording URL (optional)</label>
       <input type="text" id="youtube" placeholder="https://youtube.com/watch?v=…" />
       <label for="hashtags">Hashtags (space separated)</label>
-      <input type="text" id="hashtags" placeholder="#Bitcoin #Denver #Nostr" />
+      <input type="text" id="hashtags" />
 
       <label id="style-label">Style</label>
       <div class="seg" id="styleset" role="radiogroup" aria-labelledby="style-label"></div>
@@ -175,8 +181,8 @@ input:focus,textarea:focus{border-color:var(--accent)}
   <section>
     <div id="output">
       <div class="card empty">
-        <h3>Paste a Luma event URL to start</h3>
-        <div>You'll get 6 stages with short X, long X, and Nostr copy — ready to copy.</div>
+        <h3>Paste an event URL to start</h3>
+        <div>You'll get 6 stages with short Twitter/X, long Twitter/X, and Nostr copy — ready to copy.</div>
       </div>
     </div>
 
@@ -204,7 +210,7 @@ input:focus,textarea:focus{border-color:var(--accent)}
 </div>
 
 <div class="footer">
-  <div>Free, open-source, no backend. Built around Luma events.</div>
+  <div>Free, open-source, no backend. Built around Luma, Meetup, and Satlantis events.</div>
   <div>v2 · <a href="#" id="rebuild-link">Rebuild with Claude Code / Codex</a></div>
 </div>
 
@@ -214,7 +220,7 @@ input:focus,textarea:focus{border-color:var(--accent)}
 
 <script>
 /* =========================================================
-   Event Poster — vanilla JS, no build step
+   Event Megaphone — vanilla JS, no build step
    ========================================================= */
 
 /* ENGINE-START */
@@ -236,14 +242,89 @@ function decodeEntities(s){
 function normalizeLumaUrl(s){
   const raw = (s || '').trim();
   if(!raw) return '';
-  if(/^https?:\/\//i.test(raw)) return raw;
-  // strip a bare "luma.com/" prefix before prepending the full URL
-  const stripped = raw.replace(/^luma\.com\//i, '');
-  return `https://luma.com/${stripped.replace(/^\/+/, '')}`;
+  let full = raw;
+  if(!/^https?:\/\//i.test(full)){
+    full = /^(?:www\.)?(?:luma\.com|lu\.ma)\//i.test(full) ? `https://${full}` : `https://luma.com/${full.replace(/^\/+/, '')}`;
+  }
+  try{
+    const u = new URL(full);
+    u.protocol = 'https:';
+    u.hostname = 'luma.com';
+    u.search = '';
+    u.hash = '';
+    return u.toString().replace(/\/$/, '');
+  }catch(e){
+    const path = raw
+      .replace(/^https?:\/\/(?:www\.)?(?:luma\.com|lu\.ma)\//i, '')
+      .replace(/^(?:www\.)?(?:luma\.com|lu\.ma)\//i, '')
+      .replace(/^\/+/, '')
+      .split(/[?#]/)[0];
+    return `https://luma.com/${path}`;
+  }
 }
 function lumaSlug(url){
   try{ return new URL(normalizeLumaUrl(url)).pathname.split('/').filter(Boolean)[0] || ''; }
   catch(e){ return (url || '').replace(/^https?:\/\/[^/]+\//, '').split(/[?#/]/)[0]; }
+}
+function detectEventProvider(s){
+  const raw = (s || '').trim();
+  if(!raw) return '';
+  if(/\b(?:www\.)?meetup\.com\b/i.test(raw)) return 'meetup';
+  if(/\b(?:www\.)?satlantis\.io\b/i.test(raw)) return 'satlantis';
+  if(/\b(?:www\.)?(?:luma\.com|lu\.ma)\b/i.test(raw)) return 'luma';
+  return '';
+}
+function normalizeMeetupUrl(s){
+  const raw = (s || '').trim();
+  if(!raw) return '';
+  let full = raw;
+  if(!/^https?:\/\//i.test(full)){
+    full = /^www\.meetup\.com\//i.test(full) ? `https://${full}` : full;
+    full = /^meetup\.com\//i.test(full) ? `https://www.${full}` : full;
+    full = /^https?:\/\//i.test(full) ? full : `https://www.meetup.com/${full.replace(/^\/+/, '')}`;
+  }
+  full = full.replace(/[?#].*$/, '');
+  try{
+    const u = new URL(full);
+    if(u.hostname.toLowerCase() === 'meetup.com') u.hostname = 'www.meetup.com';
+    u.search = '';
+    u.hash = '';
+    return u.toString();
+  }catch(e){ return full.replace(/^https?:\/\/meetup\.com\//i, 'https://www.meetup.com/'); }
+}
+function normalizeSatlantisUrl(s){
+  const raw = (s || '').trim();
+  if(!raw) return '';
+  let full = raw;
+  if(!/^https?:\/\//i.test(full)){
+    full = /^(?:www\.)?satlantis\.io\//i.test(full) ? `https://${full}` : `https://satlantis.io/${full.replace(/^\/+/, '')}`;
+  }
+  try{
+    const u = new URL(full);
+    u.protocol = 'https:';
+    u.hostname = 'satlantis.io';
+    u.search = '';
+    u.hash = '';
+    return u.toString();
+  }catch(e){ return full.replace(/[?#].*$/, '').replace(/^https?:\/\/www\.satlantis\.io/i, 'https://satlantis.io'); }
+}
+function normalizeEventUrl(s, selectedProvider){
+  const provider = detectEventProvider(s) || selectedProvider || 'luma';
+  if(provider === 'meetup') return normalizeMeetupUrl(s);
+  if(provider === 'satlantis') return normalizeSatlantisUrl(s);
+  return normalizeLumaUrl(s);
+}
+function normalizeMapUrl(s){
+  const raw = (s || '').trim();
+  if(!raw) return '';
+  const match = decodeEntities(raw).match(/https?:\/\/(?:www\.)?(?:google\.com\/maps|maps\.google\.com|maps\.app\.goo\.gl|goo\.gl\/maps)[^\s)]*/i);
+  const full = match ? match[0] : raw;
+  if(!/^https?:\/\//i.test(full)) return '';
+  try{
+    const u = new URL(full);
+    u.hash = '';
+    return u.toString();
+  }catch(e){ return full; }
 }
 function fmtHashtags(s){
   if(!s) return '';
@@ -315,7 +396,7 @@ function enforceXLimit(text){
   if(clean.length<=X_LIMIT) return clean;
 
   let lines = clean.split('\n');
-  const protectedLine = line => /^https?:\/\//.test(line) || /^RSVP:/.test(line) || line.includes('luma.com') || line.startsWith('#') || /^📅/.test(line);
+  const protectedLine = line => /^https?:\/\//.test(line) || /^(RSVP|Map):/i.test(line) || line.includes('luma.com') || line.startsWith('#') || /^📅/.test(line);
 
   while(lines.join('\n').length>X_LIMIT){
     let idx = -1;
@@ -346,7 +427,7 @@ function stripLinks(text){
     .map(line => line
       .replace(/https?:\/\/\S+/gi, '')
       .replace(new RegExp('\\b[\\w-]+(?:\\.[\\w-]+)*\\.(?:' + TLD + ')(?:\\/\\S*)?', 'gi'), ''))
-    .map(line => line.replace(/\b(?:RSVP|Watch|Stream):\s*$/i, '').replace(/[ \t]+$/, ''))
+    .map(line => line.replace(/\b(?:RSVP|Watch|Stream|Map):\s*$/i, '').replace(/[ \t]+$/, ''))
     .join('\n')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
@@ -362,12 +443,26 @@ function sanitizeVenueText(s){
 }
 function parseJsonLdEvent(html){
   const scripts = html.match(/<script[^>]+type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi) || [];
+  const isEventType = type => Array.isArray(type)
+    ? type.some(isEventType)
+    : typeof type === 'string' && /Event$/i.test(type);
+  const collectEvents = (node, out = []) => {
+    if(!node) return out;
+    if(Array.isArray(node)){ node.forEach(item => collectEvents(item, out)); return out; }
+    if(typeof node === 'object'){
+      if(isEventType(node['@type'])) out.push(node);
+      if(node['@graph']) collectEvents(node['@graph'], out);
+      if(node.itemListElement) collectEvents(node.itemListElement, out);
+      if(node.mainEntity) collectEvents(node.mainEntity, out);
+      if(node.item) collectEvents(node.item, out);
+    }
+    return out;
+  };
   for(const script of scripts){
     const json = script.replace(/^<script[^>]*>/i, '').replace(/<\/script>$/i, '');
     try{
       const data = JSON.parse(decodeEntities(json));
-      const items = Array.isArray(data) ? data : [data];
-      const ev = items.find(it => it && (it['@type'] === 'Event' || (Array.isArray(it['@type']) && it['@type'].includes('Event'))));
+      const ev = collectEvents(data)[0];
       if(ev) return ev;
     }catch(e){}
   }
@@ -376,12 +471,26 @@ function parseJsonLdEvent(html){
 function validateEvent(ev){
   return !!(ev && ev.title && (ev.date_iso || ev.description));
 }
+function importErrorReason(input, provider){
+  const raw = decodeEntities(input || '');
+  if(!raw) return '';
+  const clean = raw.replace(/\s+/g, ' ').trim();
+  const targetError = clean.match(/Warning:\s*Target URL returned error\s*([45]\d\d)[^:]*:\s*([^#\n.]+)/i);
+  if(targetError) return `The event page returned ${targetError[1]} ${targetError[2].trim()}.`;
+  if(provider === 'meetup' && /Welp,\s*this\s+404\s+is\s+awkward/i.test(clean)) return 'Meetup returned a 404 page.';
+  if(provider === 'luma' && /This event (?:does not exist|has been deleted)|Event not found/i.test(clean)) return 'Luma returned an unavailable event page.';
+  if(provider === 'satlantis' && /Page not found|404\s*-\s*Not Found/i.test(clean)) return 'Satlantis returned an unavailable event page.';
+  return '';
+}
 function metaContent(html, key){
   if(!html) return '';
   const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const patterns = [
-    new RegExp(`<meta\\b[^>]*(?:name|property)=["']${escaped}["'][^>]*content=["']([^"']*)["'][^>]*>`, 'i'),
-    new RegExp(`<meta\\b[^>]*content=["']([^"']*)["'][^>]*(?:name|property)=["']${escaped}["'][^>]*>`, 'i')
+    // quote-aware: a double-quoted content value may contain apostrophes and vice versa
+    new RegExp(`<meta\\b[^>]*(?:name|property)=["']${escaped}["'][^>]*content="([^"]*)"[^>]*>`, 'i'),
+    new RegExp(`<meta\\b[^>]*(?:name|property)=["']${escaped}["'][^>]*content='([^']*)'[^>]*>`, 'i'),
+    new RegExp(`<meta\\b[^>]*content="([^"]*)"[^>]*(?:name|property)=["']${escaped}["'][^>]*>`, 'i'),
+    new RegExp(`<meta\\b[^>]*content='([^']*)'[^>]*(?:name|property)=["']${escaped}["'][^>]*>`, 'i')
   ];
   for(const pattern of patterns){
     const match = html.match(pattern);
@@ -392,44 +501,176 @@ function metaContent(html, key){
 function stripLumaTitle(title){
   return (title || '').replace(/\s+·\s+Luma.*$/i, '').trim();
 }
+function stripSourceTitle(title){
+  return stripLumaTitle(title || '')
+    .replace(/\s+\|\s+Meetup\s*$/i, '')
+    .replace(/\s+\|\s+Satlantis\s*$/i, '')
+    .replace(/,\s*(Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s+[A-Z][a-z]{2,8}\s+\d{1,2},?\s+\d{4}.*$/i, '')
+    .trim();
+}
 function cleanReaderLine(line){
   return decodeEntities(line || '')
     .replace(/[​-‍﻿]/g, '')
     .replace(/!\[[^\]]*\]\([^)]+\)/g, '')
+    .replace(/\[\]\((https?:\/\/[^)]+)\)/g, '$1')
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[*_]{1,3}([^*_]+)[*_]{1,3}/g, '$1')
+    .replace(/^#+\s*/, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
+function cleanImportedText(s){
+  return sanitizeVenueText(decodeEntities(s || '')
+    .replace(/[​-‍﻿]/g, '')
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, '')
+    .replace(/\[\]\((https?:\/\/[^)]+)\)/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[*_]{1,3}([^*_]+)[*_]{1,3}/g, '$1')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim());
+}
+function firstMapUrl(s){
+  return normalizeMapUrl(s || '');
+}
+function coordMapUrl(lat, lng){
+  if(lat === undefined || lng === undefined || lat === null || lng === null) return '';
+  const a = Number(lat), b = Number(lng);
+  if(!Number.isFinite(a) || !Number.isFinite(b)) return '';
+  return `https://www.google.com/maps/search/?api=1&query=${a}%2C%20${b}`;
+}
+function schemaAddressText(address){
+  if(!address) return '';
+  if(typeof address === 'string') return address;
+  const parts = [
+    address.streetAddress,
+    [address.addressLocality, address.addressRegion].filter(Boolean).join(', '),
+    address.postalCode,
+    address.addressCountry && String(address.addressCountry).toUpperCase()
+  ].filter(Boolean);
+  return parts.join('\n');
+}
+function dedupeTextLines(s){
+  const seen = new Set();
+  return (s || '').split(/\n+/)
+    .map(line => line.trim())
+    .filter(Boolean)
+    .filter(line => {
+      const key = line.toLowerCase();
+      if(seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .join('\n');
+}
+function schemaLocationText(location){
+  const loc = Array.isArray(location) ? location[0] : location;
+  if(!loc) return '';
+  if(typeof loc === 'string') return cleanImportedText(loc);
+  return dedupeTextLines(cleanImportedText([loc.name, schemaAddressText(loc.address)].filter(Boolean).join('\n')));
+}
+function schemaMapUrl(location){
+  const loc = Array.isArray(location) ? location[0] : location;
+  if(!loc || typeof loc !== 'object') return '';
+  return normalizeMapUrl(loc.hasMap || loc.map || loc.url || '') || coordMapUrl(loc.geo?.latitude, loc.geo?.longitude);
+}
+function searchMapUrl(location){
+  const q = cleanImportedText(location).replace(/\n+/g, ' ').trim();
+  return q ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}` : '';
+}
+function schemaName(person){
+  const value = Array.isArray(person) ? person[0] : person;
+  if(!value) return '';
+  if(typeof value === 'string') return value;
+  return value.name || '';
+}
+function meetupVenueLocation(ev){
+  const v = ev?.venue || ev?.venueInfo || ev?.venueDetails || null;
+  if(!v) return '';
+  const address = [v.address, [v.city, v.state].filter(Boolean).join(', ')].filter(Boolean).join('\n');
+  return cleanImportedText([v.name, address].filter(Boolean).join('\n'));
+}
+function meetupVenueMapUrl(ev){
+  const v = ev?.venue || ev?.venueInfo || ev?.venueDetails || null;
+  if(!v) return '';
+  return normalizeMapUrl(v.url || v.mapUrl || v.googleMapsUrl || '') || coordMapUrl(v.lat, v.lng ?? v.lon);
+}
+function readerLocation(lines){
+  const rawLines = lines.map(line => decodeEntities(line || ''));
+  const joined = rawLines.join('\n');
+  const map_url = firstMapUrl(joined);
+  const mapIndices = rawLines.map((line, i) => firstMapUrl(line) || /google map|maps-googleapis|staticmap/i.test(line) ? i : -1).filter(i => i >= 0);
+  const stop = /^(Attendees|Sponsors|Photos|Related topics|You may also like|Presented by|Hosted By|Hosted by|Register|Share|Share a flyer|Add to Calendar|Calendar of events|See all|Contact the Host|Report Event)/i;
+  const dateish = /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|\d{1,2}|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\b/i;
+  const keepLocationLine = line => {
+    const clean = cleanReaderLine(line);
+    if(!clean) return '';
+    if(stop.test(clean) || dateish.test(clean)) return '';
+    if(/google\.com\/maps|maps-googleapis|staticmap|calendar icon|pin icon/i.test(clean)) return '';
+    if(/^https?:\/\/\S+$/i.test(clean) || /^\d+$/.test(clean)) return '';
+    return clean;
+  };
+  for(const mapIndex of mapIndices){
+    const after = [];
+    for(let i = mapIndex + 1; i < lines.length; i++){
+      const line = cleanReaderLine(lines[i]);
+      if(!line) continue;
+      if(stop.test(line) || /google\.com\/maps|maps-googleapis|staticmap/i.test(line)) break;
+      const kept = keepLocationLine(line);
+      if(kept) after.push(kept);
+      if(after.length >= 3) break;
+    }
+    if(after.length) return { location: cleanImportedText(after.join('\n')), map_url };
+
+    const before = [];
+    for(let i = mapIndex - 1; i >= 0 && before.length < 3; i--){
+      const kept = keepLocationLine(lines[i]);
+      if(kept) before.unshift(kept);
+      else if(before.length) break;
+    }
+    if(before.length) return { location: cleanImportedText(before.join('\n')), map_url };
+  }
+  return { location: '', map_url };
+}
 function readerTitle(raw){
   const match = raw.match(/^Title:\s*(.+)$/mi);
-  return stripLumaTitle(match ? match[1] : '');
+  return stripSourceTitle(match ? match[1] : '');
 }
 function readerDescription(lines){
   const cleaned = lines.map(cleanReaderLine).filter(Boolean);
   const aboutIndex = cleaned.findIndex(line => /^About Event$/i.test(line));
-  const skip = /^(Title:|URL Source:|Markdown Content:|Presented by|Hosted By|Register|Share|Add to Calendar|Calendar of events|See what's|Welcome!|To join|Subscribe|Contact the Host|Report Event)/i;
+  const detailsIndex = cleaned.findIndex(line => /^Details$/i.test(line));
+  const descIndex = cleaned.findIndex(line => /^Description$/i.test(line));   // Satlantis reader heading
+  const skip = /^(Title:|URL Source:|Markdown Content:|Details|Attendees|Sponsors|Photos|Related topics|You may also like|Presented by|Hosted By|Hosted by|Register|Share|Share a flyer|Add to Calendar|Calendar of events|See all|See what's|Welcome!|To join|Subscribe|Contact the Host|Report Event|Address$|Open Map$|Discussion$|Add a comment$|Sign in$|Sign Up For Free$|Awaiting Extension|Continue with\b|Join the$|By proceeding|Latest Announcement$|View discussion$)/i;
   const dateish = /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|\d{1,2}|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\b/i;
-  const pool = aboutIndex >= 0 ? cleaned.slice(aboutIndex + 1) : cleaned;
+  const headingIndex = [aboutIndex, detailsIndex, descIndex].filter(i => i >= 0).sort((a, b) => a - b)[0];
+  const pool = headingIndex !== undefined ? cleaned.slice(headingIndex + 1) : cleaned;
   const body = [];
   for(const line of pool){
     if(/·\s*Luma$/i.test(line)) continue;            // skip the page-title line ("… · Luma")
+    if(/google\.com\/maps|maps-googleapis|staticmap/i.test(line)){ if(body.length) break; else continue; }
     if(/^https?:\/\/\S+$/i.test(line)) continue;      // skip a standalone URL line
+    if(/^[-*]\s*\[[ x]?\]\s*$/i.test(line)) continue; // skip reader checkbox artifacts ("- [x]")
     if(skip.test(line) || dateish.test(line)){ if(body.length) break; else continue; }
     body.push(line);
     if(body.join('\n').length > 1200) break;          // enough of the body captured
   }
-  return sanitizeVenueText(body.join('\n').trim());
+  return cleanImportedText(body.join('\n').trim());
 }
 function readerDate(lines){
   const cleaned = lines.map(cleanReaderLine).filter(Boolean);
-  const dateLine = cleaned.find(line => /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2}/i.test(line));
-  const timeLine = cleaned.find(line => /\d{1,2}:\d{2}\s*(AM|PM)\s*[-–]\s*\d{1,2}:\d{2}\s*(AM|PM)/i.test(line));
+  const dateLine = cleaned.find(line => /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2}/i.test(line))
+    || cleaned.find(line => /\bTickets,\s*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2}/i.test(line))
+    || cleaned.find(line => /^Title:.*\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2}/i.test(line));
+  const timeLine = cleaned.find(line => /\d{1,2}(?::\d{2})?\s*(AM|PM)\s*(?:[-–]|to)\s*\d{1,2}(?::\d{2})?\s*(AM|PM)/i.test(line));
   if(!dateLine) return '';
-  const weekday = (dateLine.match(/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)/i) || [])[1] || '';
+  const timeSource = timeLine || dateLine;
+  const weekday = (dateLine.match(/\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/i) || [])[1] || '';
   const month = (dateLine.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*/i) || [])[0] || '';
-  const day = (dateLine.match(/\b\d{1,2}\b/) || [])[0] || '';
-  const startTime = timeLine ? (timeLine.match(/\d{1,2}:\d{2}\s*(AM|PM)/i) || [])[0] : '';
-  const tz = timeLine ? (timeLine.match(/\b[A-Z]{2,4}\b$/) || [])[0] : '';
+  const day = (dateLine.match(/\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{1,2})/i) || [])[1] || '';
+  const startTime = (timeSource.match(/\d{1,2}(?::\d{2})?\s*(AM|PM)/i) || [])[0] || '';
+  const tzMatches = [...timeSource.matchAll(/\b\d{1,2}(?::\d{2})?\s*(?:AM|PM)\s+([A-Z]{2,4})\b/g)];
+  const tz = tzMatches.length ? tzMatches[tzMatches.length - 1][1] : '';
   const shortWeekday = weekday.slice(0, 3);
   const shortMonth = month.slice(0, 3);
   return [shortWeekday && `${shortWeekday}, ${shortMonth} ${day}`, startTime && `${startTime.toUpperCase()}${tz ? ` ${tz}` : ''}`].filter(Boolean).join(' · ');
@@ -450,19 +691,69 @@ function extractSpeaker(title, description){
   }
   return '';
 }
+function lumaMirrorText(node){
+  if(!node) return '';
+  if(typeof node === 'string') return node;
+  if(Array.isArray(node)) return node.map(lumaMirrorText).filter(Boolean).join('\n');
+  if(typeof node === 'object'){
+    if(typeof node.text === 'string') return node.text;
+    if(Array.isArray(node.content)){
+      const joined = node.content.map(lumaMirrorText).filter(Boolean).join(node.type === 'paragraph' ? '' : '\n');
+      return node.type === 'paragraph' ? joined.trim() : joined;
+    }
+  }
+  return '';
+}
+function lumaApiToEvent(input, fallbackUrl){
+  let data;
+  try{
+    data = typeof input === 'string' ? JSON.parse(input) : input;
+  }catch(e){
+    const wrappedJson = String(input || '').match(/Markdown Content:\s*({[\s\S]*})\s*$/);
+    if(!wrappedJson) return null;
+    try{ data = JSON.parse(wrappedJson[1]); }catch(inner){ return null; }
+  }
+  const apiEvent = data?.event || data;
+  if(!apiEvent || typeof apiEvent !== 'object' || !apiEvent.name) return null;
+  const date_iso = apiEvent.start_at || apiEvent.startDate || data.start_at || '';
+  const tz = apiEvent.timezone || data.timezone || '';
+  const description = lumaMirrorText(data.description_mirror || apiEvent.description_mirror) || data.description || apiEvent.description || '';
+  const address = apiEvent.geo_address_info?.full_address || apiEvent.geo_address_info?.short_address || '';
+  const location = cleanImportedText(address || apiEvent.geo_address_info?.city_state || '');
+  const map_url = coordMapUrl(apiEvent.coordinate?.latitude, apiEvent.coordinate?.longitude);
+  return {
+    id: apiEvent.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+    title: sanitizeVenueText(apiEvent.name),
+    date_iso, tz, date_display: date_iso ? formatEventTime(date_iso, tz) : '',
+    host: '',
+    speaker: extractSpeaker(apiEvent.name, description),
+    speaker_org:'', speaker_x:'', speaker_nostr:'',
+    description: cleanImportedText(description),
+    location,
+    map_url,
+    hashtags: [],
+    luma_url: normalizeLumaUrl(apiEvent.url || fallbackUrl || ''),
+    style:'conversational', tone:'educational',
+    image_url: apiEvent.cover_url || apiEvent.social_image_url || ''
+  };
+}
 function deepFindEvent(html){
   const m = html.match(/<script id=["']__NEXT_DATA__["'][^>]*>([\s\S]*?)<\/script>/i);
   if(!m) return null;
   let data; try{ data = JSON.parse(decodeEntities(m[1])); }catch(e){ return null; }
   const looksLikeEvent = o => o && typeof o === 'object' && typeof o.name === 'string'
     && (o.start_at || o.startDate || o.start_time);
+  const looksLikeMeetupEvent = o => o && typeof o === 'object' && typeof o.title === 'string'
+    && (o.dateTime || o.startDate || o.start_at);
   const stack = [data];
   while(stack.length){
     const node = stack.pop();
     if(Array.isArray(node)){ for(const v of node) stack.push(v); continue; }
     if(node && typeof node === 'object'){
       if(node.event && looksLikeEvent(node.event)) return node.event;
+      if(node.event && looksLikeMeetupEvent(node.event)) return node.event;
       if(looksLikeEvent(node)) return node;
+      if(looksLikeMeetupEvent(node)) return node;
       for(const k in node) stack.push(node[k]);
     }
   }
@@ -470,6 +761,8 @@ function deepFindEvent(html){
 }
 function lumaToEvent(input, fallbackUrl){
   const raw = input || '';
+  const apiEvent = lumaApiToEvent(raw, fallbackUrl);
+  if(apiEvent) return apiEvent;
   const html = raw.includes('<') ? raw : '';
   const lines = raw.split(/\n+/).map(l => l.trim()).filter(Boolean);
   const jsonLd = html ? parseJsonLdEvent(html) : null;
@@ -482,55 +775,240 @@ function lumaToEvent(input, fallbackUrl){
   const description = jsonLd?.description || metaContent(html, 'og:description') || readerDescription(lines) || '';
   const url = normalizeLumaUrl(jsonLd?.url || metaContent(html, 'og:url') || fallbackUrl || nextEv.url || '');
   const date_display = date_iso ? formatEventTime(date_iso, tz) : (readerDate(lines) || '');
+  const readerLoc = readerLocation(lines);
+  const location = schemaLocationText(jsonLd?.location) || readerLoc.location || '';
+  const map_url = schemaMapUrl(jsonLd?.location) || readerLoc.map_url || '';
   return {
     id: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
     title: sanitizeVenueText(title),
     date_iso, tz, date_display,
-    host: 'Denver Bitcoin meetup',
+    host: '',
     speaker: extractSpeaker(title, description),
     speaker_org:'', speaker_x:'', speaker_nostr:'',
-    description: sanitizeVenueText(description),
-    hashtags: ['#Bitcoin', '#Denver'],
+    description: cleanImportedText(description),
+    location,
+    map_url,
+    hashtags: [],
     luma_url: url, style:'conversational', tone:'educational',
     image_url: Array.isArray(jsonLd?.image) ? jsonLd.image[0] : (jsonLd?.image || nextEv.cover_url || '')
   };
 }
+function hostHandleFromMeetup(ev){
+  const host = ev?.eventHosts?.[0]?.name || ev?.hosts?.[0]?.name || ev?.host?.name || '';
+  return /^@[\w.-]+$/.test(host) ? host : '';
+}
+function imageFromMeetup(jsonLd, ev){
+  if(Array.isArray(jsonLd?.image)) return jsonLd.image[0] || '';
+  if(jsonLd?.image) return jsonLd.image;
+  return ev?.displayPhoto?.source || ev?.featuredEventPhoto?.source || '';
+}
+function meetupToEvent(input, fallbackUrl){
+  const raw = input || '';
+  const html = raw.includes('<') ? raw : '';
+  const lines = raw.split(/\n+/).map(l => l.trim()).filter(Boolean);
+  const jsonLd = html ? parseJsonLdEvent(html) : null;
+  const nextEv = html ? (deepFindEvent(html) || {}) : {};
+  const date_iso = jsonLd?.startDate || nextEv.dateTime || nextEv.startDate || nextEv.start_at || '';
+  const tz = nextEv.timezone || nextEv.group?.timezone || '';
+  const title = stripSourceTitle(jsonLd?.name || nextEv.title || nextEv.name || metaContent(html, 'og:title') || readerTitle(raw) || '');
+  if(!title) throw new Error('Could not find an event title in that Meetup content.');
+  const description = nextEv.description || jsonLd?.description || metaContent(html, 'og:description') || readerDescription(lines) || '';
+  const url = normalizeMeetupUrl(jsonLd?.url || nextEv.eventUrl || metaContent(html, 'og:url') || fallbackUrl || '');
+  const date_display = date_iso ? formatEventTime(date_iso, tz) : (readerDate(lines) || '');
+  const speaker_x = hostHandleFromMeetup(nextEv);
+  const readerLoc = readerLocation(lines);
+  const location = meetupVenueLocation(nextEv) || schemaLocationText(jsonLd?.location) || readerLoc.location || '';
+  const map_url = meetupVenueMapUrl(nextEv) || schemaMapUrl(jsonLd?.location) || readerLoc.map_url || '';
+  return {
+    id: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+    title: sanitizeVenueText(title),
+    date_iso, tz, date_display,
+    host: '',
+    speaker: '', speaker_org:'', speaker_x, speaker_nostr:'',
+    description: cleanImportedText(description),
+    location,
+    map_url,
+    hashtags: [],
+    luma_url: url, style:'conversational', tone:'educational',
+    image_url: imageFromMeetup(jsonLd, nextEv)
+  };
+}
+function satlantisDateDisplay(raw, lines){
+  const fromReader = readerDate(lines || []);
+  if(fromReader) return fromReader;
+  const cleaned = (lines || String(raw || '').split(/\n+/)).map(cleanReaderLine).filter(Boolean);
+  const blocks = [];
+  for(let i = 0; i < cleaned.length - 3; i++){
+    if(!/^\d{1,2}$/.test(cleaned[i])) continue;
+    if(!/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*$/i.test(cleaned[i + 1])) continue;
+    if(!/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)$/i.test(cleaned[i + 2])) continue;
+    if(!/\b\d{1,2}(?::\d{2})?\s*(?:AM|PM)\b/i.test(cleaned[i + 3])) continue;
+    const day = cleaned[i];
+    const month = cleaned[i + 1].slice(0, 3);
+    const weekday = cleaned[i + 2].slice(0, 3);
+    const time = cleaned[i + 3].toUpperCase();
+    blocks.push({ label: `${weekday}, ${month} ${day} · ${time}`, time });
+    i += 3;
+    if(blocks.length === 2) break;
+  }
+  if(blocks.length === 1) return blocks[0].label;
+  if(blocks.length >= 2){
+    // multi-day event: "Thu, Jun 11 · 12:00 AM - Sat, Jun 13 · 11:59 PM CEST" (shared tz shown once)
+    const tzOf = t => (t.match(/\b([A-Z]{2,5})\s*$/) || [])[1] || '';
+    const sharedTz = tzOf(blocks[0].time) && tzOf(blocks[0].time) === tzOf(blocks[1].time);
+    const first = sharedTz ? blocks[0].label.replace(/\s+[A-Z]{2,5}\s*$/, '') : blocks[0].label;
+    return `${first} - ${blocks[1].label}`;
+  }
+  const line = cleaned.find(l => /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2}\b/i.test(l)
+    && /\b\d{1,2}(?::\d{2})?\s*(?:AM|PM)\b/i.test(l));
+  if(!line) return '';
+  const weekday = (line.match(/\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/i) || [])[1] || '';
+  const month = (line.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*/i) || [])[0] || '';
+  const day = (line.match(/\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{1,2})/i) || [])[1] || '';
+  const startTime = (line.match(/\b\d{1,2}(?::\d{2})?\s*(?:AM|PM)\b/i) || [])[0] || '';
+  const tzMatches = [...line.matchAll(/\b\d{1,2}(?::\d{2})?\s*(?:AM|PM)\s+([A-Z]{2,4})\b/g)];
+  const tz = tzMatches.length ? tzMatches[tzMatches.length - 1][1] : '';
+  const date = [weekday && weekday.slice(0, 3), month && month.slice(0, 3), day].filter(Boolean);
+  const dateLabel = date.length === 3 ? `${date[0]}, ${date[1]} ${date[2]}` : (month && day ? `${month.slice(0, 3)} ${day}` : '');
+  return [dateLabel, startTime && `${startTime.toUpperCase()}${tz ? ` ${tz}` : ''}`].filter(Boolean).join(' · ');
+}
+function stripSatlantisTitle(title){
+  return stripSourceTitle(title || '')
+    .replace(/\s+\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2}\s+\d{4},\s*\d{1,2}(?::\d{2})?\s*(?:am|pm)\s*$/i, '')
+    .replace(/\s*[-–]\s*Satlantis\s*$/i, '')
+    .replace(/\s*@\s*Satlantis\s*$/i, '')
+    .replace(/\s+on\s+Satlantis\s*$/i, '')
+    .trim();
+}
+function decodeJsString(s){
+  if(!s) return '';
+  try{ return JSON.parse(`"${s}"`); }
+  catch(e){ return decodeEntities(s.replace(/\\"/g, '"').replace(/\\n/g, '\n')); }
+}
+function satlantisEmbeddedField(html, field){
+  if(!html) return '';
+  const escaped = field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = html.match(new RegExp(`(?:^|[,{])\\s*${escaped}\\s*:\\s*"((?:\\\\.|[^"\\\\])*)"`, 's'));
+  return match ? decodeJsString(match[1]).trim() : '';
+}
+function satlantisEmbeddedVenueName(html){
+  const match = (html || '').match(/venue\s*:\s*\{[\s\S]*?\bname\s*:\s*"((?:\\.|[^"\\])*)"/);
+  return match ? decodeJsString(match[1]).trim() : '';
+}
+function satlantisReaderLocation(lines){
+  const cleaned = lines.map(cleanReaderLine);
+  const addressIndex = cleaned.findIndex(line => /^Address$/i.test(line));
+  if(addressIndex >= 0){
+    for(let i = addressIndex + 1; i < lines.length && i <= addressIndex + 5; i++){
+      const location = cleaned[i];
+      const map_url = firstMapUrl(lines[i]);
+      if(location && !/^(Open Map|Discussion|Add a comment)$/i.test(location)){
+        return { location: cleanImportedText(location), map_url };
+      }
+    }
+  }
+  return readerLocation(lines);
+}
+function satlantisToEvent(input, fallbackUrl){
+  const raw = input || '';
+  const html = raw.includes('<') ? raw : '';
+  const lines = raw.split(/\n+/).map(l => l.trim()).filter(Boolean);
+  const title = stripSatlantisTitle(satlantisEmbeddedField(html, 'title') || metaContent(html, 'og:title') || metaContent(html, 'twitter:title') || readerTitle(raw)
+    || ((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] ? decodeEntities((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1]) : ''));
+  if(!title) throw new Error('Could not find an event title in that Satlantis content.');
+  const description = metaContent(html, 'og:description') || metaContent(html, 'description') || readerDescription(lines) || '';
+  const url = normalizeSatlantisUrl(metaContent(html, 'og:url') || fallbackUrl || '');
+  const date_iso = satlantisEmbeddedField(html, 'start');
+  const tz = satlantisEmbeddedField(html, 'startTzId');
+  const venueName = satlantisEmbeddedVenueName(html);
+  const embeddedLocation = satlantisEmbeddedField(html, 'location');
+  const readerLoc = satlantisReaderLocation(lines);
+  const map_url = normalizeMapUrl(satlantisEmbeddedField(html, 'googleMapsUri') || satlantisEmbeddedField(html, 'googleMapsUrl')) || readerLoc.map_url;
+  return {
+    id: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+    title: sanitizeVenueText(title),
+    date_iso, tz, date_display: date_iso ? formatEventTime(date_iso, tz) : satlantisDateDisplay(raw, lines),
+    host: '',
+    speaker:'', speaker_org:'', speaker_x:'', speaker_nostr:'',
+    description: cleanImportedText(description),
+    location: cleanImportedText(dedupeTextLines([venueName, embeddedLocation].filter(Boolean).join('\n'))) || readerLoc.location,
+    map_url,
+    hashtags: [],
+    luma_url: url, style:'conversational', tone:'educational',
+    image_url: metaContent(html, 'og:image') || ''
+  };
+}
+function importFieldSummary(ev, provider){
+  const fields = [];
+  if(ev.title) fields.push('title');
+  if(ev.date_display || ev.date_iso) fields.push('date/time');
+  if(ev.location) fields.push('location');
+  if(ev.map_url) fields.push('map');
+  if(ev.description) fields.push('description');
+  if(ev.luma_url) fields.push('RSVP');
+  if(ev.speaker || ev.speaker_x || ev.speaker_nostr) fields.push('speaker');
+  const wanted = ['title','date/time','location','map','description','RSVP'];
+  const missing = wanted.filter(field => !fields.includes(field));
+  if(provider === 'satlantis'){
+    return `Filled: ${fields.join(', ') || 'basic event details'}. Add manually: ${missing.concat(['speaker', 'hashtags']).filter((v, i, a) => a.indexOf(v) === i).join(', ')}.`;
+  }
+  return missing.length
+    ? `Filled: ${fields.join(', ') || 'basic event details'}. Add manually: ${missing.concat(['speaker', 'hashtags']).filter((v, i, a) => a.indexOf(v) === i).join(', ')}.`
+    : `Filled: ${fields.join(', ')}. Add manually: speaker, hashtags.`;
+}
+function eventContentToEvent(input, fallbackUrl, provider){
+  const detected = detectEventProvider(fallbackUrl);
+  const source = provider || detected || 'luma';
+  if(!['luma', 'meetup', 'satlantis'].includes(source)){
+    throw new Error('Unsupported event source. Use a Luma, Meetup, or Satlantis event URL.');
+  }
+  const errorReason = importErrorReason(input, source);
+  if(errorReason) throw new Error(errorReason);
+  if(source === 'meetup') return meetupToEvent(input, fallbackUrl);
+  if(source === 'satlantis') return satlantisToEvent(input, fallbackUrl);
+  return lumaToEvent(input, fallbackUrl);
+}
 function buildProxyAttempts(url){
   const enc = encodeURIComponent(url);
   return [
-    { name:'codetabs',   kind:'raw',  url:`https://api.codetabs.com/v1/proxy?quest=${enc}` },
-    { name:'corsproxy',  kind:'raw',  url:`https://corsproxy.io/?url=${enc}` },
+    { name:'corsworker', kind:'raw',  url:`https://test.cors.workers.dev/?${url}` },
+    { name:'corseu',     kind:'raw',  url:`https://cors.eu.org/${url}` },
     { name:'allorigins', kind:'json', url:`https://api.allorigins.win/get?url=${enc}` },
     { name:'jina',       kind:'raw',  reader:true, url:`https://r.jina.ai/${url}` }
   ];
 }
+function buildLumaApiAttempts(url){
+  const apiUrl = `https://api.lu.ma/event/get?event_api_id=${encodeURIComponent(lumaSlug(url))}`;
+  const enc = encodeURIComponent(apiUrl);
+  return [
+    { name:'luma-api-allorigins', kind:'json', api:true, url:`https://api.allorigins.win/get?url=${enc}` },
+    { name:'luma-api-jina',       kind:'raw',  api:true, url:`https://r.jina.ai/${apiUrl}` }
+  ];
+}
 const TONES = {
   educational: {
-    openers: ['Here’s a good one:', 'Worth knowing about:', 'On the calendar:', 'New one worth your time:'],
-    ctas: ['Free to RSVP →', 'Save your seat →', 'Details + RSVP →', 'Sign up to attend →'],
-    signoffs: ['Bring your questions.', 'Come curious.']
+    openers: ['Here’s a good one:', 'Worth knowing about:', 'On the calendar:', 'New one worth your time:', 'Add this to your week:', 'One for the learners:', 'If you’ve been meaning to go deeper:', 'Worth the drive:'],
+    ctas: ['Free to RSVP →', 'Save your seat →', 'Details + RSVP →', 'Sign up to attend →', 'Reserve a spot →', 'RSVP — it helps the headcount →'],
+    signoffs: ['Bring your questions.', 'Come curious.', 'Leave knowing more than you came with.', 'Good questions welcome.']
   },
   welcoming: {
-    openers: ['You’re invited 👋', 'Come hang with us:', 'New to Bitcoin? Start here:', 'All welcome —'],
-    ctas: ['First time? Just show up →', 'RSVP and say hi →', 'Bring a friend →'],
-    signoffs: ['Newcomers genuinely welcome.', 'No experience needed — just curiosity.']
-  },
-  cypherpunk: {
-    openers: ['Signal:', 'For the orange-pilled:', 'Sound money, in person:', 'Tune out the noise —'],
-    ctas: ['RSVP. No KYC.', 'Show up. Stay sovereign.', 'Lock it in →'],
-    signoffs: ['Be there.', 'Bring cash, bring questions.']
+    openers: ['You’re invited 👋', 'Come hang with us:', 'New to Bitcoin? Start here:', 'All welcome —', 'Door’s open:', 'First meetup? Make it this one:', 'Know someone curious? Bring them:', 'Friendly room, real conversations:'],
+    ctas: ['First time? Just show up →', 'RSVP and say hi →', 'Bring a friend →', 'Come say hello →', 'Grab a spot, introduce yourself →', 'Save yourself a seat →'],
+    signoffs: ['Newcomers genuinely welcome.', 'No experience needed — just curiosity.', 'Come as you are.', 'You’ll know somebody by the end.']
   },
   punchy: {
-    openers: ['Mark it. 📅', 'This one’s big.', 'Don’t sleep on this:', 'Lock it in.'],
-    ctas: ['RSVP now →', 'Grab a spot →', 'Go. →'],
-    signoffs: ['See you there.', 'Pull up.']
+    openers: ['Mark it. 📅', 'This one’s big.', 'Don’t sleep on this:', 'Lock it in.', 'Clear the calendar.', 'Heads up:', 'You in?', 'Big room energy:'],
+    ctas: ['RSVP now →', 'Grab a spot →', 'Go. →', 'Claim your seat →', 'Tap in →', 'In? RSVP →'],
+    signoffs: ['See you there.', 'Pull up.', 'Be in the room.', 'Don’t miss it.']
   }
 };
 const STYLES = { structured:{ id:'structured' }, conversational:{ id:'conversational' } };
 
 function pickWith(arr, seed){ return arr[Math.abs(seed) % arr.length]; }
 function speakerTag(ev){ return ev.speaker_x ? (ev.speaker_x.startsWith('@') ? ev.speaker_x : '@'+ev.speaker_x) : (ev.speaker || ''); }
-function venueLabel(ev){ return ev.venue || 'Denver Bitcoin meetup'; }
+function firstLine(s){ return (s || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean)[0] || ''; }
+function oneLine(s){ return (s || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean).join(' · '); }
+function venueLabel(ev){ return firstLine(ev.location) || ev.venue || ''; }
 function daysUntil(iso){ if(!iso) return 7; return Math.max(0, Math.round((new Date(iso) - new Date()) / 86400000)); }
 
 const STAGES = [
@@ -553,6 +1031,12 @@ function buildStage(stage, ev, style, tone, seed){
   const xName = ev.speaker ? (xhandle ? `${ev.speaker} (${xhandle})` : ev.speaker) : xhandle;  // "Name (@handle)" for X
   const npubLine = ev.speaker_nostr ? `nostr:${ev.speaker_nostr}` : '';                          // tags speaker on Nostr
   const venue = venueLabel(ev);
+  const location = oneLine(ev.location || venue);
+  const venuePin = venue ? `📍 ${venue}` : '';
+  const locPin = location ? `📍 ${location}` : '';
+  const map = normalizeMapUrl(ev.map_url || '');
+  const mapLine = map ? `Map: ${map}` : '';
+  const mapReply = map ? "Map link’s in the reply too." : '';
   const tags = ev.hashtags || '';
   const rsvp = ev.luma_url || '';
   const date = ev.date_display || '';
@@ -588,18 +1072,18 @@ function buildStage(stage, ev, style, tone, seed){
         x: conv
           ? para(firstSentence(hook) || `${opener} ${ev.title}`,
                  tight(xName && `${xName} is showing us.`, date && `📅 ${date}`),
-                 (rsvp ? `${cta} ${rsvp}` : cta), tags)
+                 tight((rsvp ? `${cta} ${rsvp}` : cta), mapLine), tags)
           : para(`New event: ${ev.title}`,
-                 tight(date && `📅 ${date}`, `📍 ${venue}`, xName && `🎤 ${xName}`),
-                 (rsvp ? `${cta} ${rsvp}` : cta), tags),
+                 tight(date && `📅 ${date}`, venuePin, xName && `🎤 ${xName}`),
+                 tight((rsvp ? `${cta} ${rsvp}` : cta), mapLine), tags),
         xlong: stripLinks(para(ev.title,
           paras(hook) || 'A new one is on the calendar.',
-          tight(ev.speaker && `With ${ev.speaker}${xhandle ? ` ${xhandle}` : ''}${ev.speaker_org ? ` (${ev.speaker_org})` : ''}.`, date && `📅 ${date}`, `📍 ${venue}`),
+          tight(ev.speaker && `With ${ev.speaker}${xhandle ? ` ${xhandle}` : ''}${ev.speaker_org ? ` (${ev.speaker_org})` : ''}.`, date && `📅 ${date}`, locPin),
           signoff,
-          tight("RSVP’s in the reply 👇", yt && 'Stream link in the reply too.'),
+          tight("RSVP’s in the reply 👇", mapReply, yt && 'Stream link in the reply too.'),
           tags)),
         nostr: para(ev.title,
-          tight(date && `📅 ${date}`, `📍 ${venue}`, ev.speaker && `🎤 ${ev.speaker}`, npubLine),
+          tight(date && `📅 ${date}`, locPin, ev.speaker && `🎤 ${ev.speaker}`, npubLine, mapLine),
           paras(hook),
           tight(cta, rsvp),
           tags)
@@ -607,32 +1091,32 @@ function buildStage(stage, ev, style, tone, seed){
     case 'rem7': {
       const d = Math.max(daysUntil(ev.date_iso), 7);
       return {
-        x: conv ? para(`One week out: ${ev.title}.`, firstSentence(hook), (rsvp && `RSVP: ${rsvp}`), tags)
-                : para(`${d} days out — ${ev.title}`, date, (rsvp && `RSVP: ${rsvp}`), tags),
+        x: conv ? para(`One week out: ${ev.title}.`, firstSentence(hook), tight(rsvp && `RSVP: ${rsvp}`, mapLine), tags)
+                : para(`${d} days out — ${ev.title}`, date, tight(rsvp && `RSVP: ${rsvp}`, mapLine), tags),
         xlong: stripLinks(para(`${d} days out: ${ev.title}`,
-          tight(date, ev.speaker && `With ${ev.speaker}.`),
+          tight(date, ev.speaker && `With ${ev.speaker}.`, location && locPin),
           paras(hook) || 'Easy to miss, worth having on the calendar.',
-          'Know someone who’d enjoy it? Bring them.', signoff, tags)),
-        nostr: para(`${d} days out: ${ev.title}`, date, paras(hook), (rsvp && `RSVP: ${rsvp}`), tags)
+          'Know someone who’d enjoy it? Bring them.', signoff, mapReply, tags)),
+        nostr: para(`${d} days out: ${ev.title}`, date, location && locPin, paras(hook), tight(rsvp && `RSVP: ${rsvp}`, mapLine), tags)
       };
     }
     case 'rem1':
       return {
-        x: conv ? para(`Tomorrow. ${ev.title}${ev.speaker ? ` with ${xName}` : ''}.`, date, (rsvp ? `Last call to RSVP → ${rsvp}` : cta), tags)
-                : para(`Tomorrow — ${ev.title}`, tight(date, `📍 ${venue}`, xName), rsvp, tags),
+        x: conv ? para(`Tomorrow. ${ev.title}${ev.speaker ? ` with ${xName}` : ''}.`, date, tight((rsvp ? `Last call to RSVP → ${rsvp}` : cta), mapLine), tags)
+                : para(`Tomorrow — ${ev.title}`, tight(date, venuePin, xName), tight(rsvp, mapLine), tags),
         xlong: stripLinks(para(`Tomorrow: ${ev.title}`,
-          tight(date, venue, ev.speaker && `With ${ev.speaker}${xhandle ? ` ${xhandle}` : ''}.`),
+          tight(date, locPin, ev.speaker && `With ${ev.speaker}${xhandle ? ` ${xhandle}` : ''}.`),
           paras(hook) || 'One more nudge before this happens.',
-          'RSVP if you’re coming and bring someone curious.', "Link’s in the reply 👇", tags)),
-        nostr: para(`Tomorrow: ${ev.title}`, tight(ev.speaker && `With ${ev.speaker}`, npubLine, date, `📍 ${venue}`), (rsvp && tight('Last chance to RSVP:', rsvp)), tags)
+          'RSVP if you’re coming and bring someone curious.', "Link’s in the reply 👇", mapReply, tags)),
+        nostr: para(`Tomorrow: ${ev.title}`, tight(ev.speaker && `With ${ev.speaker}`, npubLine, date, locPin, mapLine), (rsvp && tight('Last chance to RSVP:', rsvp)), tags)
       };
     case 'live':
       return {
-        x: conv ? para(`We’re live 🔴 ${ev.title}${xhandle ? ` with ${xhandle}` : ''}`, conversions, `📍 ${venue}${yt ? ' — or catch the stream.' : ''}`, tags)
-                : para(`LIVE — ${ev.title}`, `🔴 ${conversions}`, `📍 ${venue}`, xName && `🎤 ${xName}`, tags),
+        x: conv ? para(`We’re live 🔴 ${ev.title}${xhandle ? ` with ${xhandle}` : ''}`, conversions, (venue ? `📍 ${venue}${yt ? ' — or catch the stream.' : ''}` : (yt ? 'Catch the stream.' : '')), mapLine, tags)
+                : para(`LIVE — ${ev.title}`, `🔴 ${conversions}`, venuePin, xName && `🎤 ${xName}`, mapLine, tags),
         xlong: stripLinks(para(`We’re live: ${ev.title}`, conversions, firstSentence(hook),
-          yt ? 'Streaming now — link in the reply.' : 'If you’re nearby, now’s the time to come through.', venue, tags)),
-        nostr: para(`Live now 🔴 ${ev.title}`, conversions, paras(hook), tight(`📍 ${venue}`, npubLine, yt && `Stream: ${yt}`), tags)
+          yt ? 'Streaming now — link in the reply.' : 'If you’re nearby, now’s the time to come through.', locPin, mapReply, tags)),
+        nostr: para(`Live now 🔴 ${ev.title}`, conversions, paras(hook), tight(locPin, npubLine, mapLine, yt && `Stream: ${yt}`), tags)
       };
     case 'followup':
       return {
@@ -703,17 +1187,29 @@ async function fetchTextWithTimeout(url, timeoutMs){
     clearTimeout(timer);
   }
 }
+function withTimeout(promise, timeoutMs, message){
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message || 'Timed out.')), timeoutMs);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
 async function runAttempt(a){
   const text = await fetchTextWithTimeout(a.url, 15000);
   const body = a.kind === 'json' ? (JSON.parse(text).contents || '') : text;
-  if(!(body.includes('application/ld+json') || body.includes('__NEXT_DATA__') || /^Title:/mi.test(body)))
-    throw new Error('no event data');
-  const ev = lumaToEvent(body, '');
+  const looksLikeEvent = body.includes('application/ld+json') || body.includes('__NEXT_DATA__')
+    || /^Title:/mi.test(body) || /og:title/.test(body) || /[,{]\s*start\s*:\s*"/.test(body)
+    || /"event"\s*:\s*\{/.test(body) || /"start_at"\s*:\s*"/.test(body);
+  if(!looksLikeEvent) throw new Error('no event data');
+  const ev = eventContentToEvent(body, a.sourceUrl || '', a.provider);
   if(!validateEvent(ev)) throw new Error('unparseable');
   return body;
 }
-async function fetchLumaHtml(url){
-  const attempts = buildProxyAttempts(url);
+async function fetchEventHtml(url, provider){
+  const attempts = [
+    ...(provider === 'luma' ? buildLumaApiAttempts(url) : []),
+    ...buildProxyAttempts(url)
+  ].map(a => ({ ...a, sourceUrl: url, provider }));
   const htmlFirst = attempts.filter(a => !a.reader);      // full HTML carries JSON-LD = the complete description
   const readerLast = attempts.filter(a => a.reader);      // reader markdown is a weaker last resort
   try{
@@ -723,36 +1219,78 @@ async function fetchLumaHtml(url){
     throw e;
   }
 }
-async function importLumaUrl(){
-  const url = normalizeLumaUrl(val('luma_import_url') || val('luma'));
-  if(!url){ setImportStatus('Paste a Luma event URL first.', 'warn'); return; }
-  setVal('luma_import_url', url);
+function sourceName(provider){
+  if(provider === 'meetup') return 'Meetup';
+  if(provider === 'satlantis') return 'Satlantis';
+  return 'Luma';
+}
+function providerForInput(raw){
+  const typed = (raw || '').trim();
+  if(!typed) return '';
+  const detected = detectEventProvider(typed);
+  if(detected) return detected;
+  if(!/[/:.]|meetup|satlantis/i.test(typed)) return 'luma';
+  return '';
+}
+function currentProvider(){ return providerForInput(val('event_import_url') || val('luma')); }
+function updateImportCopy(provider){
+  const name = sourceName(provider);
+  const eventLabel = document.getElementById('event-url-label');
+  const eventInput = document.getElementById('event_import_url');
+  const importButton = document.getElementById('btn-import-event');
+  const pasteLabel = document.getElementById('event-paste-label');
+  const pasteArea = document.getElementById('event_paste');
+  const parseButton = document.getElementById('btn-parse-event-paste');
+  if(eventLabel) eventLabel.textContent = 'Event URL';
+  if(eventInput) eventInput.placeholder = 'Luma | Meetup | Satlantis';
+  if(importButton) importButton.textContent = provider ? `Import from ${name}` : 'Import event';
+  if(pasteLabel) pasteLabel.textContent = provider ? `${name} page text or HTML` : 'Event page text or HTML';
+  if(pasteArea) pasteArea.placeholder = provider
+    ? `If import is blocked, paste the ${name} page source or copied event text here.`
+    : 'If import is blocked, paste the event page source or copied event text here.';
+  if(parseButton) parseButton.textContent = provider ? `Use pasted ${name} content` : 'Use pasted content';
+}
+async function importEventUrl(){
+  const typed = val('event_import_url') || val('luma');
+  const provider = providerForInput(typed);
+  if(!provider){ setImportStatus('Paste a supported event URL: Luma, Meetup, or Satlantis.', 'warn'); return; }
+  const url = normalizeEventUrl(typed, provider);
+  if(!url){ setImportStatus('Paste a supported event URL first.', 'warn'); return; }
+  updateImportCopy(provider);
+  setVal('event_import_url', url);
 
-  setImportStatus('Importing event details from Luma...', '');
+  const name = sourceName(provider);
+  setImportStatus(`Importing event details from ${name}... This can take 15–20 seconds.`, '');
   try{
-    const html = await fetchLumaHtml(url);
-    const ev = lumaToEvent(html, url);
-    applyEvent(ev);
-    setImportStatus('Imported from Luma and generated the campaign.', 'ok');
+    const html = await withTimeout(fetchEventHtml(url, provider), 35000, `${name} import timed out.`);
+    const ev = eventContentToEvent(html, url, provider);
+    applyEvent(ev, provider);
+    setImportStatus(`Imported from ${name}. ${importFieldSummary(ev, provider)}`, 'ok');
   }catch(e){
-    console.warn('Luma import failed:', e?.errors ?? e);
-    document.getElementById('luma-paste-wrap').hidden = false;
-    setImportStatus('Automatic import could not read that Luma page. Paste copied event text or page source below, then parse it here.', 'warn');
+    console.warn(`${name} import failed:`, e?.errors ?? e);
+    document.getElementById('event-paste-wrap').hidden = false;
+    setImportStatus(`Automatic import could not read that ${name} page. Paste copied event text or page source below, then parse it here.`, 'warn');
   }
 }
-function importLumaPaste(){
+function importEventPaste(){
   try{
-    const ev = lumaToEvent(val('luma_paste'), val('luma_import_url') || val('luma'));
-    applyEvent(ev);
-    setImportStatus('Parsed pasted Luma content and generated the campaign.', 'ok');
+    const typed = val('event_import_url') || val('luma');
+    const provider = providerForInput(typed);
+    if(!provider) throw new Error('Paste the supported event URL first so the parser knows the source.');
+    updateImportCopy(provider);
+    const ev = eventContentToEvent(val('event_paste'), normalizeEventUrl(typed, provider), provider);
+    applyEvent(ev, provider);
+    setImportStatus(`Parsed pasted ${sourceName(provider)} content. ${importFieldSummary(ev, provider)}`, 'ok');
   }catch(e){
-    setImportStatus(e.message || 'Could not parse that Luma content.', 'warn');
+    setImportStatus(e.message || 'Could not parse that event content.', 'warn');
   }
 }
-function toggleLumaPaste(){
-  const wrap = document.getElementById('luma-paste-wrap');
+function toggleEventPaste(){
+  const wrap = document.getElementById('event-paste-wrap');
   wrap.hidden = !wrap.hidden;
-  setImportStatus(wrap.hidden ? 'The Luma event is the source of truth; the fields below are just for edits.' : 'Paste copied Luma event text or page source, then click Use pasted Luma content.', '');
+  const provider = currentProvider();
+  updateImportCopy(provider);
+  setImportStatus(wrap.hidden ? 'Paste any supported event URL. The event page is the source of truth; the fields below are just for edits.' : 'Paste copied event text or page source, then parse it here.', '');
 }
 /* ---------- Render ---------- */
 function escapeHtml(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
@@ -764,7 +1302,7 @@ function netBlock(label, cls, id, text, limit, mode, stageLabel){
     <div class="post-head"><span class="net ${cls}">${label}</span>
       <div class="post-actions"><button class="btn small" data-copy="${id}" aria-label="Copy ${label} for ${stageLabel}">Copy</button>${open}</div></div>
     <textarea class="post-body" id="${id}" data-mode="${mode}" data-limit="${limit}" spellcheck="true" aria-label="${label} draft for ${stageLabel}">${escapeHtml(text)}</textarea>
-    <div class="post-meta"><span class="count${(mode==='short'&&text.length>X_LIMIT)?' warn':''}" data-target="${id}">${count}</span><span class="note" data-target="${id}"></span></div>
+    <div class="post-meta"><span class="count${(mode==='short'&&text.length>X_LIMIT)?' warn':''}" data-target="${id}">${count}</span><span class="note" data-target="${id}"></span><span class="post-too-long${(mode==='short'&&text.length>X_LIMIT)?' show':''}" data-too-long="${id}" aria-live="polite">Post too long</span></div>
   </div>`;
 }
 function renderOutput(ev){
@@ -792,12 +1330,15 @@ function updateCount(id){
   const node = document.getElementById(id);
   const count = document.querySelector(`.count[data-target="${id}"]`);
   const note = document.querySelector(`.note[data-target="${id}"]`);
+  const tooLong = document.querySelector(`.post-too-long[data-too-long="${id}"]`);
   if(!node || !count) return;
   const text = node.value; const len = text.length; const mode = node.dataset.mode;
+  const overShortLimit = mode === 'short' && len > X_LIMIT;
   count.textContent = mode === 'short' ? `${len} / ${X_LIMIT}` : `${len} chars`;
-  count.classList.toggle('warn', mode === 'short' && len > X_LIMIT);
+  count.classList.toggle('warn', overShortLimit);
+  if(tooLong) tooLong.classList.toggle('show', overShortLimit);
   if(note){
-    if(mode === 'short') note.textContent = len > X_LIMIT ? '⚠️ trim required' : '';
+    if(mode === 'short') note.textContent = overShortLimit ? `${len - X_LIMIT} chars over` : '';
     else if(mode === 'long') note.textContent = /https?:\/\//.test(text) ? 'has link' : 'no in-post link';
     else note.textContent = len > NOSTR_SOFT_LIMIT ? '(long — consider Highlighter)' : '';
   }
@@ -805,7 +1346,7 @@ function updateCount(id){
 
 /* ---------- Form / selectors / state ---------- */
 const STYLE_OPTS = [['conversational','Conversational','Reads like a person wrote it'],['structured','Structured','Label-led, scannable']];
-const TONE_OPTS = [['educational','📚 Educational','Why it matters'],['welcoming','🤝 Welcoming','Newcomers first'],['cypherpunk','🕶️ Cypherpunk','Signal, sovereignty'],['punchy','🥊 Punchy','Short, high energy']];
+const TONE_OPTS = [['educational','📚 Educational','Why it matters'],['welcoming','🤝 Welcoming','Newcomers first'],['punchy','🥊 Punchy','Short, high energy']];
 let manualEdited = false;
 function renderSeg(id, opts, current){
   const wrap = document.getElementById(id);
@@ -824,18 +1365,21 @@ function onKnobChange(){ if(document.getElementById('title').value.trim()) rende
 function val(id){ return document.getElementById(id).value.trim(); }
 function setVal(id,v){ document.getElementById(id).value = v || ''; }
 function readForm(){
+  const location = val('location');
+  const map_url = normalizeMapUrl(val('map_url') || firstMapUrl(location));
   return {
     title: val('title'), date_display: val('date'), date_iso: window.__lastIso || '', tz: window.__lastTz || '',
     speaker: val('speaker'), speaker_x: val('speaker_x'), speaker_nostr: val('speaker_nostr'),
-    hook: val('hook'), luma_url: val('luma'), youtube_url: val('youtube'),
-    hashtags: fmtHashtags(val('hashtags')), venue: 'Denver Bitcoin meetup'
+    hook: val('hook'), luma_url: val('luma'), location, map_url, youtube_url: val('youtube'),
+    hashtags: fmtHashtags(val('hashtags')), venue: ''
   };
 }
-function applyEvent(ev){
+function applyEvent(ev, providerOverride){
   window.__lastIso = ev.date_iso || ''; window.__lastTz = ev.tz || '';
-  setVal('luma_import_url', ev.luma_url); setVal('title', ev.title); setVal('date', ev.date_display);
+  updateImportCopy(providerOverride || detectEventProvider(ev.luma_url) || currentProvider());
+  setVal('event_import_url', ev.luma_url); setVal('title', ev.title); setVal('date', ev.date_display);
   setVal('speaker', ev.speaker); setVal('speaker_x', ev.speaker_x); setVal('speaker_nostr', ev.speaker_nostr);
-  setVal('hook', ev.hook || ev.description); setVal('luma', ev.luma_url); setVal('youtube', ev.youtube_url || '');
+  setVal('hook', ev.hook || ev.description); setVal('luma', ev.luma_url); setVal('location', ev.location || ''); setVal('map_url', ev.map_url || ''); setVal('youtube', ev.youtube_url || '');
   setVal('hashtags', Array.isArray(ev.hashtags) ? ev.hashtags.join(' ') : (ev.hashtags || ''));
   if(ev.style) document.querySelectorAll('#styleset [role=radio]').forEach(r => r.setAttribute('aria-checked', r.dataset.val===ev.style));
   if(ev.tone) document.querySelectorAll('#toneset [role=radio]').forEach(r => r.setAttribute('aria-checked', r.dataset.val===ev.tone));
@@ -843,11 +1387,12 @@ function applyEvent(ev){
   renderOutput(readForm());
   setGenerateLabel();
 }
-function setGenerateLabel(){ document.getElementById('btn-generate').textContent = document.getElementById('output').children.length ? 'Regenerate posts ↻' : 'Generate posts'; }
+function hasRenderedPosts(){ return !!document.querySelector('#output .stage'); }
+function setGenerateLabel(){ document.getElementById('btn-generate').textContent = hasRenderedPosts() ? 'Regenerate posts ↻' : 'Generate posts'; }
 function generate(){
   const ev = readForm();
   if(!ev.title){ alert('Add an event title first.'); return; }
-  if(manualEdited && document.getElementById('output').children.length){
+  if(manualEdited && hasRenderedPosts()){
     if(!confirm('Regenerating will replace any drafts you have edited. Continue?')) return;
   }
   renderOutput(ev); manualEdited = false; setGenerateLabel();
@@ -855,23 +1400,28 @@ function generate(){
 
 /* ---------- Init ---------- */
 function init(){
+  updateImportCopy('');
   renderSeg('styleset', STYLE_OPTS, 'conversational');
   renderSeg('toneset', TONE_OPTS, 'educational');
   document.getElementById('btn-generate').addEventListener('click', generate);
-  document.getElementById('btn-import-luma').addEventListener('click', importLumaUrl);
-  document.getElementById('btn-toggle-luma-paste').addEventListener('click', toggleLumaPaste);
-  document.getElementById('btn-parse-luma-paste').addEventListener('click', importLumaPaste);
+  document.getElementById('btn-import-event').addEventListener('click', importEventUrl);
+  document.getElementById('btn-toggle-event-paste').addEventListener('click', toggleEventPaste);
+  document.getElementById('btn-parse-event-paste').addEventListener('click', importEventPaste);
+  document.getElementById('event_import_url').addEventListener('input', () => {
+    updateImportCopy(providerForInput(val('event_import_url')));
+  });
   document.getElementById('btn-clear').addEventListener('click', clearForm);
   const rebuild = document.getElementById('rebuild-link');
   if(rebuild) rebuild.addEventListener('click', e => { e.preventDefault(); window.open('./BUILD_SPEC.md','_blank'); });
 }
 function clearForm(){
-  ['luma_import_url','luma_paste','title','date','speaker','speaker_x','speaker_nostr','hook','luma','youtube','hashtags'].forEach(id => setVal(id,''));
+  ['event_import_url','event_paste','title','date','speaker','speaker_x','speaker_nostr','hook','luma','location','map_url','youtube','hashtags'].forEach(id => setVal(id,''));
   window.__lastIso = ''; window.__lastTz = ''; manualEdited = false;
+  updateImportCopy('');
   renderSeg('styleset', STYLE_OPTS, 'conversational'); renderSeg('toneset', TONE_OPTS, 'educational');
-  document.getElementById('luma-paste-wrap').hidden = true;
-  setImportStatus('The Luma event is the source of truth; the fields below are just for edits.', '');
-  document.getElementById('output').innerHTML = '<div class="card" style="padding:40px;text-align:center;color:var(--muted)"><b style="color:var(--text)">Paste a Luma event URL to start</b><div>You’ll get 6 stages with short X, long X, and Nostr copy.</div></div>';
+  document.getElementById('event-paste-wrap').hidden = true;
+  setImportStatus('Paste any supported event URL. The event page is the source of truth; the fields below are just for edits.', '');
+  document.getElementById('output').innerHTML = '<div class="card" style="padding:40px;text-align:center;color:var(--muted)"><b style="color:var(--text)">Paste an event URL to start</b><div>You’ll get 6 stages with short Twitter/X, long Twitter/X, and Nostr copy.</div></div>';
   document.getElementById('checklist-panel').hidden = true;
   setGenerateLabel();
 }

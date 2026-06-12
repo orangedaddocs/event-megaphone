@@ -1,0 +1,6 @@
+Title: Lightning Routing Roundtable | Satlantis
+URL Source: https://satlantis.io/events/lightning-routing-roundtable
+Markdown Content:
+# Lightning Routing Roundtable
+Tuesday, Nov 3, 2026 at 7:00 PM EST
+Operators compare channel liquidity, fees, and routing reliability.

@@ -1,0 +1,11 @@
+Title: Mining Heat Workshop, Thu, Aug 13, 2026, 6:00 PM | Meetup
+URL Source: https://www.meetup.com/hashrate-builders/events/315333444/
+Markdown Content:
+# Mining Heat Workshop
+Thursday, Aug 13, 6:00 PM to Thursday, Aug 13, 8:00 PM CDT
+## Details
+Hands-on walkthrough of home mining heat reuse.
+[![Map](https://maps-googleapis.meetup.com/maps/api/staticmap?center=30.2672%2C+-97.7431)](https://www.google.com/maps/search/?api=1&query=30.2672%2C%20-97.7431)
+Capital Factory
+701 Brazos Street Austin, TX 78701
+## Attendees
