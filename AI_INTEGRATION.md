@@ -1,6 +1,6 @@
-# AI_INTEGRATION.md — Wiring Event Poster to a real AI (optional)
+# AI_INTEGRATION.md — Wiring Event Megaphone to a real AI (optional)
 
-Event Poster ships as a **template engine**: it fills pre-written sentences with your event's details. That's fast, free, private, and offline — but the wording follows fixed patterns. If you want genuinely custom, per-event copy, you can bolt on a real LLM. This file is the how-to.
+Event Megaphone ships as a **template engine**: it fills pre-written sentences with your event's details. That's fast, free, private, and offline — but the wording follows fixed patterns. If you want genuinely custom, per-event copy, you can bolt on a real LLM. This file is the how-to.
 
 **This is optional and not built into the shipped app.** Hand this file to Claude Code / Codex / Cursor (or do it by hand) when you want the upgrade.
 
@@ -135,7 +135,7 @@ STYLE = "{style}":
 - "structured"   → label-led, scannable, one fact per line.
 - "conversational" → open with the event's hook/question, read like a person.
 
-TONE = "{tone}" (educational | welcoming | cypherpunk | punchy): match that voice.
+TONE = "{tone}" (educational | welcoming | punchy): match that voice.
 
 Rules:
 - Use the event's real title, speaker, date_display, venue, hook, hashtags.

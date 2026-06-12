@@ -1,9 +1,9 @@
-# Event Poster
+# Event Megaphone
 
 A free, single-file, self-hosted post generator for Luma, Meetup, and Satlantis events.
 Paste an event URL, get a ready-to-copy X + Nostr campaign.
 
-**▶ Use it now → https://orangedaddocs.github.io/event-poster/** — click and start. Or download the single `index.html` and open it; it works exactly the same, fully offline.
+**▶ Use it now → https://orangedaddocs.github.io/event-megaphone/** — click and start. Or download the single `index.html` and open it; it works exactly the same, fully offline.
 
 🔒 **No AI. No accounts. No tracking.** The tool has no analytics, no pixels, and loads no external scripts or fonts — it's one HTML file you can read end to end. It makes **zero network requests until *you* click an import button.** Want nothing in the middle at all? Download `index.html` and run it locally — then not even a web host sees you.
 
@@ -17,7 +17,7 @@ Paste an event URL, get a ready-to-copy X + Nostr campaign.
 - **6-stage campaign** per event: Announcement → 7-day reminder → 24-hr reminder → Live update → Follow-up recap → YouTube recap
 - **3 post variants per stage**: short X (≤ 280 chars), long link-light X (no URL in body; link goes in the reply), and Nostr — with live character counts
 - **Style selector**: Structured (label-led, scannable) or Conversational (hook-first, reads like a person)
-- **4 tone presets**: Educational, Welcoming, Cypherpunk, Punchy — switching either knob re-renders all 18 drafts instantly
+- **3 tone presets**: Educational, Welcoming, Punchy — switching either knob re-renders all 18 drafts instantly
 - **Visible Title field** — type or import the event title and see it live in every draft
 - **Timezone-aware**: reads the IANA zone when the event page exposes it (e.g. `America/Denver`); labels every time with the correct abbreviation (MDT/EDT/etc.); Live-stage posts show local + ET + PT conversions, deduped and DST-correct
 - **Location + map aware**: imports venue/address details and Google Maps links into editable fields, then includes clean map links in short X/Nostr posts
@@ -50,7 +50,7 @@ Free ~3-minute hosting if you don't mind the platform:
 
 1. Push the repo (it's just `index.html`).
 2. In repo **Settings → Pages → Source**: `main` branch, `/ (root)` → Save.
-3. Live at `https://<your-username>.github.io/event-poster/`.
+3. Live at `https://<your-username>.github.io/event-megaphone/`.
 
 ---
 

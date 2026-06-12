@@ -1,4 +1,4 @@
-# BUILD_SPEC.md — Event Poster
+# BUILD_SPEC.md — Event Megaphone
 
 Hand this file to **Claude Code**, **Codex**, **Cursor**, or any AI coding agent to rebuild, extend, or fork this project.
 
@@ -85,7 +85,7 @@ type Event = {
   location?: string;          // venue/address text, imported when available
   map_url?: string;           // Google Maps or equivalent map link, imported when available
   youtube_url?: string;
-  tone: 'punchy' | 'educational' | 'cypherpunk' | 'welcoming';
+  tone: 'punchy' | 'educational' | 'welcoming';
 };
 ```
 
@@ -202,7 +202,7 @@ Four tones, each with its own `openers`/`ctas`/`signoffs` phrase banks (see §6)
    - YouTube recording URL (optional)
    - Hashtags (blank after import; user fills manually)
    - **Style** selector (Structured / Conversational)
-   - **Tone** selector (Educational / Welcoming / Cypherpunk / Punchy)
+   - **Tone** selector (Educational / Welcoming / Punchy)
    - **Generate posts** (before any output) / **Regenerate posts ↻** (after output exists)
 
 ### Visual style — "Bitcoin Circle"
@@ -242,24 +242,19 @@ Four tones, each with its own `openers`/`ctas`/`signoffs` phrase banks (see §6)
 Use the following phrases as the starting library. Add more, but keep the three arrays (`openers`, `ctas`, `signoffs`). The engine selects entries via `pickWith(arr, seed)` — a deterministic rotation based on a numeric seed — so successive generations differ without being fully random. Day counts are computed via `daysUntil(iso)` (no `{days}` or `{title_short}` token substitution).
 
 ### Educational
-- openers: `"Ever wonder"`, `"Here's a good one:"`, `"Worth knowing about:"`, `"New on the calendar — and worth your time:"`
-- ctas: `"Free to RSVP →"`, `"Save your seat →"`, `"Details + RSVP →"`, `"Sign up to attend →"`
-- signoffs: `"Bring your questions."`, `"Come curious."`
+- openers: `"Here's a good one:"`, `"Worth knowing about:"`, `"On the calendar:"`, `"New one worth your time:"`, `"Add this to your week:"`, `"One for the learners:"`, `"If you've been meaning to go deeper:"`, `"Worth the drive:"`
+- ctas: `"Free to RSVP →"`, `"Save your seat →"`, `"Details + RSVP →"`, `"Sign up to attend →"`, `"Reserve a spot →"`, `"RSVP — it helps the headcount →"`
+- signoffs: `"Bring your questions."`, `"Come curious."`, `"Leave knowing more than you came with."`, `"Good questions welcome."`
 
 ### Welcoming
-- openers: `"You're invited 👋"`, `"Come hang with us:"`, `"New to Bitcoin? Start here:"`, `"All welcome —"`
-- ctas: `"First time? Just show up →"`, `"RSVP and say hi →"`, `"Bring a friend →"`
-- signoffs: `"Newcomers genuinely welcome."`, `"No experience needed — just curiosity."`
-
-### Cypherpunk
-- openers: `"Signal:"`, `"For the orange-pilled:"`, `"Sound money, in person:"`, `"Tune out the noise —"`
-- ctas: `"RSVP. No KYC."`, `"Show up. Stay sovereign."`, `"Lock it in →"`
-- signoffs: `"Be there."`, `"Bring cash, bring questions."`
+- openers: `"You're invited 👋"`, `"Come hang with us:"`, `"New to Bitcoin? Start here:"`, `"All welcome —"`, `"Door's open:"`, `"First meetup? Make it this one:"`, `"Know someone curious? Bring them:"`, `"Friendly room, real conversations:"`
+- ctas: `"First time? Just show up →"`, `"RSVP and say hi →"`, `"Bring a friend →"`, `"Come say hello →"`, `"Grab a spot, introduce yourself →"`, `"Save yourself a seat →"`
+- signoffs: `"Newcomers genuinely welcome."`, `"No experience needed — just curiosity."`, `"Come as you are."`, `"You'll know somebody by the end."`
 
 ### Punchy
-- openers: `"Mark it. 📅"`, `"This one's big."`, `"Don't sleep on this:"`, `"Lock it in."`
-- ctas: `"RSVP now →"`, `"Grab a spot →"`, `"Go. →"`
-- signoffs: `"See you there."`, `"Pull up."`
+- openers: `"Mark it. 📅"`, `"This one's big."`, `"Don't sleep on this:"`, `"Lock it in."`, `"Clear the calendar."`, `"Heads up:"`, `"You in?"`, `"Big room energy:"`
+- ctas: `"RSVP now →"`, `"Grab a spot →"`, `"Go. →"`, `"Claim your seat →"`, `"Tap in →"`, `"In? RSVP →"`
+- signoffs: `"See you there."`, `"Pull up."`, `"Be in the room."`, `"Don't miss it."`
 
 ---
 
@@ -270,7 +265,7 @@ When rebuilding, the agent must verify all of these by running through them in a
 1. **Cold load**: Open `index.html` directly with no server. The form renders empty; Style defaults to "Conversational"; Tone defaults to "Educational". Works offline (manual entry). Copy works on `file://` (clipboard fallback).
 2. **Manual entry**: Clear form. Type "Denver Bitcoin Meetup" as the **Title** (visible field), a date/time, and a speaker name. Click Generate. **6 stages** render on the right. The Announcement short X post is ≤ 280 chars; if a speaker @handle was provided it appears in the post.
 3. **Style switch**: Switching Style re-renders instantly. Structured posts open with label-led format; Conversational opens with a hook/question.
-4. **Tone switch**: Switch to "Cypherpunk". Generated posts now begin with "Signal:", "Sovereignty drop:", etc.
+4. **Tone switch**: Switch to "Punchy". Generated posts now begin with "Mark it. 📅", "Don't sleep on this:", etc.
 5. **Manual form**: Clear form. Type "Test Event" as the **Title** (visible field), "Sat, Jul 4 · 7pm MDT" as date, "Alice" as speaker. Click Generate. 6 stages render. No errors in console.
 6. **Copy**: Click Copy on any X post. Clipboard contains the exact post text including emojis and newlines. Toast appears.
 7. **Edit drafts**: Edit a generated post body. Character counts update live, Copy uses the edited text, and Open in X uses the edited text.
@@ -330,7 +325,7 @@ A Settings panel (off by default) that accepts any **OpenAI-compatible endpoint*
 
 ## 10. Neutrality constraint
 
-No venue-specific branding anywhere in repo text or generated copy. Allowed neutral terms: "Event Poster," "Denver Bitcoin meetup," "Meetup events," "Luma events," "Satlantis events," "X + Nostr campaigns." `sanitizeVenueText` enforces this on imported content.
+No venue-specific branding anywhere in repo text or generated copy. Allowed neutral terms: "Event Megaphone," "Denver Bitcoin meetup," "Meetup events," "Luma events," "Satlantis events," "X + Nostr campaigns." `sanitizeVenueText` enforces this on imported content.
 
 To verify, run the venue-neutrality `rg` check defined in the design spec (`docs/superpowers/specs/2026-05-23-event-poster-v2-design.md` §10) against `README.md`, `BUILD_SPEC.md`, `LICENSE`, and `index.html`. Expected: no matches. The literal forbidden-term pattern is kept only in that design-spec file (which is outside the checked set), so this build spec stays clean of the very terms it forbids.
 
